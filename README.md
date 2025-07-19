@@ -1,0 +1,1 @@
+❗ Hello! I would like to introduce you to my own interests on this website. The goal is to share advice and help each other! I hope you like the site, the English and German translations will be coming soon.🔜 ❗
