@@ -1,61 +1,180 @@
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* Base styles */
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --primary: #1f6feb;
+  --muted: #666;
+  --surface: #f5f7fb;
+  --border: #e5e7eb;
 }
 
+:root.dark {
+  --bg: #0b0f17;
+  --text: #e5e7eb;
+  --primary: #8ab4f8;
+  --muted: #a1a1aa;
+  --surface: #121826;
+  --border: #1f2937;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
 }
 
 header {
-    background-color: #222;
-    color: #fff;
-    padding: 1rem 0;
-    text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 0;
 }
 
 nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    margin-top: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 12px;
 }
 
-nav ul li {
-    margin: 0 15px;
+nav a {
+  text-decoration: none;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 8px;
 }
 
-nav ul li a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
+nav a:hover {
+  background: var(--border);
 }
 
-nav ul li a:hover {
-    text-decoration: underline;
-}
-
-main {
-    padding: 2rem;
-    max-width: 800px;
-    margin: auto;
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
 }
 
 section {
-    margin-bottom: 2rem;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+
+section.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  width: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.icon-btn:hover { background: var(--border); }
+
+.hamburger {
+  display: none;
+}
+
+/* Mobile nav */
+@media (max-width: 720px) {
+  nav ul {
+    position: fixed;
+    top: 56px;
+    right: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    display: none;
+  }
+  nav ul.open { display: flex; }
+  .hamburger { display: inline-flex; }
 }
 
 footer {
-    background-color: #222;
-    color: #fff;
-    text-align: center;
-    padding: 1rem 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+  text-align: center;
+  color: var(--muted);
+  padding: 24px 16px;
+  border-top: 1px solid var(--border);
 }
+
+/* Scroll to top */
+#toTop {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+}
+
+#toTop.show { display: flex; }
+
+/* Utilities */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.button:hover { background: var(--border); }
