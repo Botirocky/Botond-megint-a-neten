@@ -21,6 +21,20 @@
 
 html { scroll-behavior: smooth; }
 
+/* Keyframes */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+@keyframes spin360 {
+  to { transform: rotate(360deg); }
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
@@ -65,10 +79,29 @@ nav a {
   color: var(--text);
   padding: 8px 10px;
   border-radius: 8px;
+  position: relative;
 }
+nav a::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 6px;
+  height: 2px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .2s ease;
+}
+nav a:hover::after, nav a.active::after { transform: scaleX(1); }
 
 nav a:hover {
   background: var(--border);
+}
+
+nav a.active {
+  background: var(--primary);
+  color: #fff;
 }
 
 .container {
@@ -86,11 +119,92 @@ section {
   opacity: 0;
   transform: translateY(8px);
   transition: opacity .5s ease, transform .5s ease;
+  animation: fadeUp .5s ease forwards;
+  animation-delay: var(--d, 0ms);
 }
 
 section.revealed {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.card {
+  display: block;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: inherit;
+  text-decoration: none;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  overflow: hidden;
+  position: relative;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.12); background: var(--surface); }
+.card:active { animation: pop .15s ease; }
+.card-badges { display: flex; gap: 6px; margin-bottom: 8px; }
+.badge {
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(31,111,235,.1);
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+.card-title { font-weight: 600; margin-bottom: 6px; text-transform: capitalize; }
+.card-meta { color: var(--muted); font-size: 12px; }
+.card.hint { background: var(--surface); color: var(--muted); }
+
+/* Gallery */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+.gallery img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: zoom-in;
+  border: 1px solid var(--border);
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.lightbox.show { display: flex; }
+.lightbox img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.4);
+}
+.lightbox .close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
 }
 
 .controls {
@@ -113,6 +227,21 @@ section.revealed {
 }
 
 .icon-btn:hover { background: var(--border); }
+.icon-btn:active { transform: scale(0.98); }
+.icon-btn.spin { animation: spin360 .4s ease; }
+.icon-btn, .button { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  background: currentColor;
+  opacity: .25;
+  animation: ripple .5s ease-out;
+  pointer-events: none;
+}
+@keyframes ripple {
+  to { transform: scale(1); opacity: 0; }
+}
 
 .hamburger {
   display: none;
@@ -178,3 +307,5 @@ footer {
 }
 
 .button:hover { background: var(--border); }
+.button:active { transform: translateY(1px); }
+.button:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }

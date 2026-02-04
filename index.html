@@ -5,6 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>botondmegintaneten.hu</title>
+    <meta name="description" content="Botond megint a neten – etikus hekk, kódok, tippek és elérhetőség.">
+    <meta property="og:title" content="botondmegintaneten.hu">
+    <meta property="og:description" content="Etikus hekk és kódok – Botond megint a neten">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#0b0f17">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,6 +28,8 @@
                 <ul id="mainNav">
                     <li><a href="#home">Főoldal</a></li>
                     <li><a href="#about">Rólam</a></li>
+                    <li><a href="#content">Tartalom</a></li>
+                    <li><a href="#gallery">Galéria</a></li>
                     <li><a href="#contact">Elérhetőség</a></li>
                 </ul>
             </nav>
@@ -33,6 +44,26 @@
             <h2>Rólam</h2>
             <p>Üdv, Botond vagyok. Szeretném veled/veletek megosztani az internetes ismereteimet és elmerülni az etikus hekkelés világában.
             A GitHub-on találhatóak a kódok, amiket írtam: <a href="https://github.com/Botirocky" target="_blank" rel="noopener">https://github.com/Botirocky</a></p>
+        </section>
+        <section id="content">
+            <h2>Tartalom</h2>
+            <div id="contentList" class="card-grid" aria-live="polite"></div>
+            <template id="cardTpl">
+              <a class="card" target="_blank" rel="noopener">
+                <div class="card-badges"></div>
+                <div class="card-title"></div>
+                <div class="card-meta"></div>
+              </a>
+            </template>
+        </section>
+        <section id="gallery">
+            <h2>Galéria</h2>
+            <div class="gallery" id="galleryGrid">
+                <!-- Place your images under html-ek/ or add external URLs below -->
+                <img loading="lazy" src="https://picsum.photos/id/1015/600/400" alt="Tájkép 1" class="glight">
+                <img loading="lazy" src="https://picsum.photos/id/1025/600/400" alt="Tájkép 2" class="glight">
+                <img loading="lazy" src="https://picsum.photos/id/1035/600/400" alt="Tájkép 3" class="glight">
+            </div>
         </section>
         <section id="contact">
             <h2>Elérhetőség</h2>
@@ -54,12 +85,22 @@
       if (stored === 'dark' || (!stored && prefersDark)) document.documentElement.classList.add('dark');
     })();
 
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js');
+      });
+    }
+
     // Dark mode toggle
     const themeBtn = document.getElementById('themeToggle');
     themeBtn.addEventListener('click', () => {
       const isDark = document.documentElement.classList.toggle('dark');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       themeBtn.textContent = isDark ? '☀️' : '🌙';
+      // microanimation
+      themeBtn.classList.add('spin');
+      setTimeout(() => themeBtn.classList.remove('spin'), 400);
     });
     // Set initial icon
     themeBtn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
@@ -73,7 +114,7 @@
     // Close nav on link click (mobile)
     mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mainNav.classList.remove('open')));
 
-    // Smooth scroll handled by CSS, ensure offset for sticky header
+    // Smooth scroll with offset for sticky header
     function scrollWithOffset(hash) {
       const el = document.querySelector(hash);
       if (!el) return;
@@ -94,17 +135,32 @@
     // Scroll to top button
     const toTop = document.getElementById('toTop');
     const onScroll = () => {
+      const sections = document.querySelectorAll('main section');
+      let currentId = '';
+      const offset = 80;
+      sections.forEach(sec => {
+        const top = sec.offsetTop - offset;
+        if (window.scrollY >= top) currentId = sec.id;
+      });
+      document.querySelectorAll('#mainNav a').forEach(a => {
+        const active = a.getAttribute('href') === '#' + currentId;
+        a.classList.toggle('active', active);
+      });
       if (window.scrollY > 200) toTop.classList.add('show'); else toTop.classList.remove('show');
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     onScroll();
 
-    // Reveal sections on view
+    // Reveal sections on view with staggered delays
     const io = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); } });
     }, { threshold: 0.08 });
-    document.querySelectorAll('section').forEach(sec => io.observe(sec));
+    const sectionsToReveal = document.querySelectorAll('section');
+    sectionsToReveal.forEach((sec, i) => {
+      sec.style.setProperty('--d', `${i * 80}ms`);
+      io.observe(sec);
+    });
 
     // Copy email to clipboard
     document.getElementById('copyEmail').addEventListener('click', async () => {
@@ -119,6 +175,85 @@
         alert('Nem sikerült másolni. E‑mail: ' + email);
       }
     });
+
+    // Build Content list from html-ek/ directory using fetch of directory index (works when server exposes listing)
+    async function buildContentList() {
+      const root = document.getElementById('contentList');
+      if (!root) return;
+      const base = 'html-ek/';
+      const badgeMap = [
+        { test: /gal[eé]ria|gallery|kep|image/i, label: 'galéria' },
+        { test: /blog|cikk|article|post/i, label: 'blog' },
+        { test: /projekt|project|code|k[oó]d/i, label: 'projekt' },
+        { test: /teszt|demo|example/i, label: 'demo' },
+      ];
+      try {
+        const res = await fetch(base);
+        const text = await res.text();
+        const links = Array.from(text.matchAll(/href=\"([^\"]+)\"/g)).map(m => m[1])
+          .filter(h => h.endsWith('.html'));
+        const unique = [...new Set(links)].sort((a,b) => a.localeCompare(b));
+        if (unique.length === 0) throw new Error('No index');
+        const tpl = document.getElementById('cardTpl');
+        root.innerHTML = '';
+        unique.forEach(h => {
+          const url = base + h;
+          const name = h.replace(/[-_]/g, ' ').replace(/\.html$/,'');
+          const node = tpl.content.firstElementChild.cloneNode(true);
+          node.href = url;
+          node.querySelector('.card-title').textContent = name;
+          node.querySelector('.card-meta').textContent = `html-ek/${h}`;
+          const badges = node.querySelector('.card-badges');
+          const matched = badgeMap.find(b => b.test.test(h));
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = matched ? matched.label : 'oldal';
+          badges.appendChild(badge);
+          root.appendChild(node);
+        });
+      } catch (err) {
+        // Fallback: list a hint card
+        root.innerHTML = `<div class="card hint">Helyezd el az oldalaidat a html-ek/ mappába. A szerveres könyvtár-listázás hiánya esetén kézzel is hozzáadhatók a linkek itt.</div>`;
+      }
+    }
+    buildContentList();
+
+    // Lightbox for gallery
+    (function lightbox(){
+      const imgs = document.querySelectorAll('.glight');
+      if (!imgs.length) return;
+      const overlay = document.createElement('div');
+      overlay.className = 'lightbox';
+      overlay.innerHTML = '<button class="close" aria-label="Bezárás">✕</button><img alt="Megnyitott kép">';
+      document.body.appendChild(overlay);
+      const imgTag = overlay.querySelector('img');
+      const closeBtn = overlay.querySelector('.close');
+      function open(src, alt){ imgTag.src = src; imgTag.alt = alt || ''; overlay.classList.add('show'); }
+      function close(){ overlay.classList.remove('show'); imgTag.src=''; imgTag.alt=''; }
+      imgs.forEach(i => i.addEventListener('click', () => open(i.src, i.alt)));
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+      closeBtn.addEventListener('click', close);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    })();
+
+    // Ripple effect on buttons
+    (function attachRipples(){
+      function createRipple(e){
+        const el = e.currentTarget;
+        const rect = el.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height) * 1.2;
+        const span = document.createElement('span');
+        span.className = 'ripple';
+        span.style.width = span.style.height = size + 'px';
+        span.style.left = (e.clientX - rect.left - size/2) + 'px';
+        span.style.top = (e.clientY - rect.top - size/2) + 'px';
+        el.appendChild(span);
+        span.addEventListener('animationend', () => span.remove());
+      }
+      document.querySelectorAll('.button, .icon-btn').forEach(btn => {
+        btn.addEventListener('click', createRipple);
+      });
+    })();
     </script>
 </body>
 </html>
