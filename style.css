@@ -166,7 +166,8 @@ section.revealed {
 }
 .snake-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom: 1px solid var(--border); }
 .snake-header strong { font-size: 16px; }
-#snakeCanvas { width: 100%; height: auto; background: linear-gradient(135deg, rgba(34,139,34,.05), rgba(0,100,0,.03)); border-radius: 8px; display: block; border: 1px solid var(--border); max-width: 500px; margin: 0 auto; }
+.canvas-wrapper { display: flex; justify-content: center; width: 100%; }
+#snakeCanvas { width: 100%; height: auto; background: linear-gradient(135deg, rgba(34,139,34,.05), rgba(0,100,0,.03)); border-radius: 8px; display: block; border: 1px solid var(--border); max-width: 500px; margin: 0 auto; aspect-ratio: 5 / 3; }
 
 /* Touch controls */
 .snake-controls { display: none; justify-content: center; align-items: center; gap: 12px; margin-top: 12px; flex-direction: column; }
@@ -189,6 +190,27 @@ section.revealed {
   #startSnake, .snake-clear, #snakeClearBoard { font-size: 14px; padding: 8px 12px; }
   .button.small { font-size: 12px; padding: 6px 10px; }
   .snake-dpad button { width: 45px; height: 45px; font-size: 16px; }
+}
+
+@media (max-width: 480px) {
+  #snakeCanvas { max-width: 95vw; }
+  .canvas-wrapper { max-width: 100%; overflow: hidden; }
+  .snake-controls { gap: 8px; margin-top: 8px; }
+  .snake-dpad { grid-template-columns: repeat(3, 40px); gap: 2px; }
+  .snake-dpad button { width: 40px; height: 40px; font-size: 14px; padding: 0; }
+  .snake-header { flex-direction: column; gap: 8px; }
+  .snake-header div { width: 100%; }
+  .snake-header strong { width: 100%; text-align: center; }
+  .snake-modal-header { padding: 12px; }
+  .snake-modal-header h2 { font-size: 18px; }
+  .snake-modal-body { padding: 12px; }
+  .snake-footer { font-size: 12px; flex-direction: column; gap: 6px; align-items: center; }
+  .snake-leaderboard { margin-top: 8px; padding-top: 8px; }
+  .snake-leaderboard ol { max-height: 100px; padding-left: 16px; }
+  .snake-leaderboard li { font-size: 12px; }
+  .snake-entry { margin-top: 8px; padding: 8px; gap: 8px; }
+  .snake-entry-buttons { gap: 6px; }
+  .snake-entry-buttons .button { max-width: 100%; padding: 10px 12px; font-size: 13px; }
 }
 .snake-footer { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
 .snake-lose { color: #ff6b6b; font-weight:700; }
@@ -445,10 +467,19 @@ footer {
   border-radius: 12px;
   max-width: 600px;
   width: 90%;
-  max-height: 90vh;
+  max-height: 95vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0,0,0,.3);
   animation: modalSlideUp .3s ease;
+}
+
+@media (max-width: 480px) {
+  .snake-modal-content {
+    width: 95%;
+    max-height: 98vh;
+    max-width: 100%;
+    border-radius: 8px;
+  }
 }
 .snake-modal-header {
   display: flex;
