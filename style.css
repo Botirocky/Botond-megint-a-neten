@@ -142,6 +142,15 @@ section {
   animation-delay: var(--d, 0ms);
 }
 
+section#snake {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  background: var(--bg);
+  border: 2px solid var(--primary);
+  box-shadow: 0 10px 40px rgba(31,111,235,.12);
+}
+
 section.revealed {
 
 /* Snake game styles */
@@ -149,7 +158,7 @@ section.revealed {
 #startSnake:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(31,111,235,.25); animation: buttonBounce .4s ease; }
 #startSnake:active { transform: translateY(0); }
 #startSnake:disabled { opacity: 0.6; cursor: not-allowed; }
-#snakeContainer { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+#snakeContainer { background: var(--bg); border: 2px solid var(--primary); border-radius: 12px; padding: 16px; box-shadow: inset 0 2px 8px rgba(31,111,235,.08); }
 .snake-hidden { display: none; }
 @keyframes buttonBounce {
   0%, 100% { transform: translateY(-2px); }

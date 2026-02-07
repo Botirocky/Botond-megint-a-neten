@@ -434,6 +434,11 @@
       const cols = 20; const rows = 12; // grid
       const cellW = Math.floor(canvas.width / cols);
       const cellH = Math.floor(canvas.height / rows);
+      const GRID_SIZE = 10;
+      const gridStartCol = Math.floor((cols - GRID_SIZE) / 2);
+      const gridStartRow = Math.floor((rows - GRID_SIZE) / 2);
+      const gridEndCol = gridStartCol + GRID_SIZE;
+      const gridEndRow = gridStartRow + GRID_SIZE;
       let snake = [];
       let dir = {x:1,y:0};
       let nextDir = {x:1,y:0};
@@ -457,15 +462,15 @@
 
       function placeFood(){
         while(true){
-          const fx = Math.floor(Math.random()*cols);
-          const fy = Math.floor(Math.random()*rows);
+          const fx = gridStartCol + Math.floor(Math.random()*GRID_SIZE);
+          const fy = gridStartRow + Math.floor(Math.random()*GRID_SIZE);
           if (!snake.some(s=>s.x===fx && s.y===fy)){ food = {x:fx,y:fy}; break; }
         }
       }
       function init(){
-        // start with 3 segments
-        const startX = Math.floor(cols/2);
-        const startY = Math.floor(rows/2);
+        // start with 3 segments, centered in grid
+        const startX = Math.floor((gridStartCol + gridEndCol) / 2);
+        const startY = Math.floor((gridStartRow + gridEndRow) / 2);
         snake = [{x:startX, y:startY}, {x:startX-1, y:startY}, {x:startX-2, y:startY}];
         dir = {x:1,y:0}; nextDir = {x:1,y:0}; score = 0; running = false; statusEl.textContent = '';
         placeFood(); draw(); updateScore();
@@ -533,8 +538,40 @@
       }
       function draw(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
+        
+        // draw grid (10x10 visible cells)
+        ctx.strokeStyle = 'rgba(34,139,34,0.3)';
+        ctx.lineWidth = 2;
+        // grid border
+        const gridLeft = gridStartCol * cellW;
+        const gridTop = gridStartRow * cellH;
+        const gridRight = gridEndCol * cellW;
+        const gridBottom = gridEndRow * cellH;
+        ctx.strokeRect(gridLeft, gridTop, gridRight - gridLeft, gridBottom - gridTop);
+        
+        // grid lines
+        ctx.strokeStyle = 'rgba(34,139,34,0.15)';
+        ctx.lineWidth = 1;
+        // vertical lines
+        for (let i = 1; i < GRID_SIZE; i++) {
+          const x = (gridStartCol + i) * cellW;
+          ctx.beginPath();
+          ctx.moveTo(x, gridTop);
+          ctx.lineTo(x, gridBottom);
+          ctx.stroke();
+        }
+        // horizontal lines
+        for (let i = 1; i < GRID_SIZE; i++) {
+          const y = (gridStartRow + i) * cellH;
+          ctx.beginPath();
+          ctx.moveTo(gridLeft, y);
+          ctx.lineTo(gridRight, y);
+          ctx.stroke();
+        }
+        
         // draw food
         if (food){ ctx.fillStyle = '#ff6b6b'; ctx.fillRect(food.x*cellW+2, food.y*cellH+2, cellW-4, cellH-4); }
+        
         // draw snake: green gradient
         snake.forEach((s,i)=>{
           const brightness = 1 - (i / snake.length) * 0.3;
@@ -570,8 +607,8 @@
       function tick(){
         dir = nextDir;
         const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-        // wall collision
-        if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) { gameOver(); return; }
+        // grid boundary collision (loss if hitting frame border)
+        if (head.x < gridStartCol || head.x >= gridEndCol || head.y < gridStartRow || head.y >= gridEndRow) { gameOver(); return; }
         // self collision
         if (snake.some(s=>s.x===head.x && s.y===head.y)) { gameOver(); return; }
         snake.unshift(head);
