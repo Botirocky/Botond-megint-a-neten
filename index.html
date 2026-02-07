@@ -31,7 +31,7 @@
                     <li><a href="#about">Rólam</a></li>
                     <li><a href="#content">Tartalom</a></li>
                     <li><a href="#gallery">Galéria</a></li>
-                    <li><a href="#snake">Snake</a></li>
+                    <li><a href="#" class="snake-menu-link">Snake</a></li>
                     <li><a href="#contact">Elérhetőség</a></li>
                 </ul>
             </nav>
@@ -82,18 +82,32 @@
             </p>
         </section>
     </main>
-    <section id="snake">
-        <h2>Snake Játék</h2>
-        <div id="snakeContainer" class="snake-panel">
+    <!-- Snake Modal -->
+    <div id="snakeModal" class="snake-modal hidden" aria-hidden="true">
+      <div class="snake-modal-backdrop"></div>
+      <div class="snake-modal-content">
+        <div class="snake-modal-header">
+          <h2>Snake Játék</h2>
+          <button id="snakeModalClose" class="icon-btn" aria-label="Bezárás">✕</button>
+        </div>
+        <div class="snake-modal-body">
           <div class="snake-header">
             <strong>Játéktábla</strong>
-          <div>
-            <button id="snakeRestart" class="button" type="button">Újra</button>
-            <button id="snakeResetBest" class="button" type="button">Reset Legjobb</button>
-            <button id="closeSnake" class="icon-btn" aria-label="Bezárás">✕</button>
-          </div>
+            <div>
+              <button id="startSnake" class="button" type="button">Start</button>
+              <button id="snakeRestart" class="button" type="button">Újra</button>
+              <button id="snakeResetBest" class="button" type="button">Reset Legjobb</button>
+            </div>
         </div>
         <canvas id="snakeCanvas" width="400" height="240"></canvas>
+        <div class="snake-controls" id="snakeControls">
+          <button class="snake-up" aria-label="Fel">▲</button>
+          <div class="snake-dpad">
+            <button class="snake-left" aria-label="Bal">◄</button>
+            <button class="snake-down" aria-label="Le">▼</button>
+            <button class="snake-right" aria-label="Jobbra">►</button>
+          </div>
+        </div>
         <div class="snake-footer">
           <span id="snakeScore">Pont: 0</span>
           <span id="snakeBest" class="muted">Legjobb: 0</span>
@@ -105,16 +119,17 @@
           <button id="snakeClearBoard" class="button snake-clear" type="button">Töröl ranglistát</button>
         </div>
         <form id="snakeEntryForm" class="snake-entry snake-entry hidden" onsubmit="return false;" aria-hidden="true">
-          <input id="snakeName" type="text" placeholder="Név (pl. Boti)" aria-label="Név" />
-          <input id="snakeLevel" type="text" readonly class="small" aria-label="Szint" />
-          <input id="snakeDuration" type="text" readonly class="small" aria-label="Idő" />
-          <button id="snakeSaveEntry" class="button small" type="button">Mentés</button>
-          <button id="snakeCancelEntry" class="button small" type="button">Mégse</button>
+          <div class="snake-entry-inner">
+            <label for="snakeName">Neved a ranglistához:</label>
+            <input id="snakeName" type="text" placeholder="Pl. Boti" aria-label="Név" autofocus />
+          </div>
+          <div class="snake-entry-buttons">
+            <button id="snakeSaveEntry" class="button btn-primary" type="button">✓ Mentés</button>
+            <button id="snakeCancelEntry" class="button" type="button">✕ Mégse</button>
+          </div>
         </form>
       </div>
-      <p class="muted" style="margin-top: 12px;">A kígyó irányítása: nyilak vagy WASD billentyűk.</p>
-      <button id="startSnake" class="button" type="button">▶ Indítsd a játékot</button>
-    </section>
+    </div>
     <button id="toTop" aria-label="Vissza a tetejére" title="Vissza a tetejére">↑</button>
     <footer>
         <p>&copy; 2025 Buczi Botond. Minden jog fenntartva.</p>
@@ -586,12 +601,8 @@
         pendingEntry = { score: score, duration: durationSec, level: level };
         const form = document.getElementById('snakeEntryForm');
         const nameIn = document.getElementById('snakeName');
-        const levelIn = document.getElementById('snakeLevel');
-        const durIn = document.getElementById('snakeDuration');
-        if (!form || !nameIn || !levelIn || !durIn) return;
+        if (!form || !nameIn) return;
         nameIn.value = '';
-        levelIn.value = 'Szint: ' + level;
-        durIn.value = 'Idő: ' + durationSec + 's';
         form.classList.remove('hidden'); form.setAttribute('aria-hidden','false');
         nameIn.focus();
       }
@@ -630,6 +641,41 @@
         if (k === 'ArrowRight' || k === 'd') { if (dir.x!==-1) nextDir = {x:1,y:0}; }
       });
 
+      // Touch/mobile controls
+      const upBtn = document.querySelector('.snake-up');
+      const downBtn = document.querySelector('.snake-down');
+      const leftBtn = document.querySelector('.snake-left');
+      const rightBtn = document.querySelector('.snake-right');
+      
+      if (upBtn) upBtn.addEventListener('click', () => { if (dir.y!==1) nextDir = {x:0,y:-1}; });
+      if (downBtn) downBtn.addEventListener('click', () => { if (dir.y!==-1) nextDir = {x:0,y:1}; });
+      if (leftBtn) leftBtn.addEventListener('click', () => { if (dir.x!==1) nextDir = {x:-1,y:0}; });
+      if (rightBtn) rightBtn.addEventListener('click', () => { if (dir.x!==-1) nextDir = {x:1,y:0}; });
+      
+      // Swipe support
+      let touchStartX = 0, touchStartY = 0;
+      canvas.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      });
+      canvas.addEventListener('touchmove', (e) => {
+        if (!running) return;
+        e.preventDefault();
+        const deltaX = e.touches[0].clientX - touchStartX;
+        const deltaY = e.touches[0].clientY - touchStartY;
+        const threshold = 30;
+        
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // horizontal swipe
+          if (deltaX > threshold && dir.x !== 1) nextDir = {x:1,y:0};
+          if (deltaX < -threshold && dir.x !== -1) nextDir = {x:-1,y:0};
+        } else {
+          // vertical swipe
+          if (deltaY > threshold && dir.y !== -1) nextDir = {x:0,y:1};
+          if (deltaY < -threshold && dir.y !== 1) nextDir = {x:0,y:-1};
+        }
+      });
+
       // UI handlers
       startBtn.addEventListener('click', ()=>{ init(); start(); startBtn.style.opacity = '0.6'; startBtn.disabled = true; });
       closeBtn && closeBtn.addEventListener('click', ()=>{ stop(); });
@@ -655,6 +701,48 @@
 
       // initialize
       init(); renderBoard();
+    })();
+
+    // Snake Modal Handlers
+    (function() {
+      const modal = document.getElementById('snakeModal');
+      const snakeMenuLink = document.querySelector('.snake-menu-link');
+      const closeBtn = document.getElementById('snakeModalClose');
+      const backdrop = document.querySelector('.snake-modal-backdrop');
+
+      function openModal() {
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeModal() {
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      if (snakeMenuLink) {
+        snakeMenuLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal();
+        });
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+      }
+
+      if (backdrop) {
+        backdrop.addEventListener('click', closeModal);
+      }
+
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
     })();
     </script>
 </body>
