@@ -143,6 +143,39 @@ section {
 }
 
 section.revealed {
+
+/* Snake game styles */
+#startSnake { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--primary); background: var(--primary); color: #fff; cursor: pointer; font-weight: 600; transition: all .3s ease; margin-top: 12px; }
+#startSnake:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(31,111,235,.25); animation: buttonBounce .4s ease; }
+#startSnake:active { transform: translateY(0); }
+#startSnake:disabled { opacity: 0.6; cursor: not-allowed; }
+#snakeContainer { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.snake-hidden { display: none; }
+@keyframes buttonBounce {
+  0%, 100% { transform: translateY(-2px); }
+  50% { transform: translateY(1px); }
+}
+.snake-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom: 1px solid var(--border); }
+.snake-header strong { font-size: 16px; }
+#snakeCanvas { width: 100%; height: auto; background: linear-gradient(135deg, rgba(34,139,34,.05), rgba(0,100,0,.03)); border-radius: 8px; display: block; border: 1px solid var(--border); }
+.snake-footer { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+.snake-lose { color: #ff6b6b; font-weight:700; }
+
+/* Leaderboard inside snake panel */
+.snake-leaderboard { margin-top:10px; border-top:1px dashed var(--border); padding-top:8px; }
+.snake-leaderboard h4 { margin:0 0 6px 0; font-size:14px; }
+.snake-leaderboard ol { margin:0; padding-left:18px; max-height:120px; overflow:auto; }
+.snake-leaderboard li { margin:6px 0; font-size:13px; display:flex; justify-content:space-between; gap:8px; }
+.snake-leaderboard .name { color:var(--text); }
+.snake-leaderboard .meta { color:var(--muted); font-size:12px; }
+.snake-clear { margin-top:8px; }
+
+/* Inline entry form for leaderboard */
+.snake-entry { display:flex; gap:8px; align-items:center; margin-top:8px; }
+.snake-entry input[type="text"] { padding:6px 8px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text); transition: border-color .2s ease, box-shadow .2s ease; }
+.snake-entry input[type="text"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(31,111,235,.1); }
+.snake-entry .small { font-size:13px; padding:6px 8px; }
+.snake-entry.hidden { display:none; }
   opacity: 1;
   transform: translateY(0);
 }
