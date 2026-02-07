@@ -19,7 +19,8 @@
 <body>
     <header>
         <div class="header-inner">
-            <h1>botondmegintaneten.hu</h1>
+        <div class="header-bg" aria-hidden="true"></div>
+        <h1 class="logo-wave"><span>b</span><span>o</span><span>t</span><span>o</span><span>n</span><span>d</span><span>m</span><span>e</span><span>g</span><span>i</span><span>n</span><span>t</span><span>a</span><span>n</span><span>e</span><span>t</span><span>e</span><span>n</span><span>.</span><span>h</span><span>u</span></h1>
             <div class="controls">
                 <button id="themeToggle" class="icon-btn" aria-label="Téma váltása" title="Világos/Sötét mód">🌙</button>
                 <button id="hamburger" class="icon-btn hamburger" aria-label="Menü" title="Menü">☰</button>
@@ -37,8 +38,13 @@
     </header>
     <main class="container">
         <section id="home">
-            <h2>Főoldal</h2>
-            <p>Az oldal fejlesztés alatt. Kérem az esetleges hibákat jelezze az alábbi e‑mail címen.</p>
+        <div class="hero">
+          <div>
+          <h2>Főoldal</h2>
+          <p class="muted">Az oldal fejlesztés alatt. Kérem az esetleges hibákat jelezze az alábbi e‑mail címen.</p>
+          </div>
+          <div class="typing" aria-hidden="true">Itt lesz majd: <span id="typingTarget"></span><span class="cursor"></span></div>
+        </div>
         </section>
         <section id="about">
             <h2>Rólam</h2>
@@ -48,22 +54,24 @@
         </section>
         <section id="content">
             <h2>Tartalom</h2>
-            <div id="contentList" class="card-grid" aria-live="polite"></div>
-            <template id="cardTpl">
-              <a class="card" target="_blank" rel="noopener">
-                <div class="card-badges"></div>
-                <div class="card-title"></div>
-                <div class="card-meta"></div>
-              </a>
-            </template>
+        <div id="contentList" class="card-grid" aria-live="polite"></div>
+        <template id="cardTpl">
+          <a class="card" target="_blank" rel="noopener">
+          <div class="card-inner">
+            <div class="card-badges"></div>
+            <div class="card-title"></div>
+            <div class="card-meta"></div>
+          </div>
+          </a>
+        </template>
         </section>
         <section id="gallery">
             <h2>Péladképeim</h2>
             <div class="gallery" id="galleryGrid">
                 <!-- Place your images under html-ek/ or add external URLs below -->
-                <img loading="lazy" src="https://cerebrodigital.net/wp-content/uploads/2025/09/portada-12.jpg" alt="Tájkép 1" class="glight">
-                <img loading="lazy" src="https://i.scdn.co/image/ab67616d0000b2737c8786f3c0b85ec3a60d011b" alt="Tájkép 2" class="glight">
-                <img loading="lazy" src="https://yt3.googleusercontent.com/ytc/AIdro_k2s1oV-ElOIvdSw3y-93nHW7TioYxFoWwF5i2um4PN-cs=s900-c-k-c0x00ffffff-no-rj" alt="Tájkép 3" class="glight">
+                <img loading="lazy" src="https://cerebrodigital.net/wp-content/uploads/2025/09/portada-12.jpg" alt="Linus Torvalds" class="glight">
+                <img loading="lazy" src="https://i.scdn.co/image/ab67616d0000b2737c8786f3c0b85ec3a60d011b" alt="Tecak" class="glight">
+                <img loading="lazy" src="https://yt3.googleusercontent.com/ytc/AIdro_k2s1oV-ElOIvdSw3y-93nHW7TioYxFoWwF5i2um4PN-cs=s900-c-k-c0x00ffffff-no-rj" alt="Terry Davis" class="glight">
             </div>
         </section>
         <section id="contact">
@@ -209,6 +217,8 @@
           const badge = document.createElement('span');
           badge.className = 'badge';
           badge.textContent = matched ? matched.label : 'oldal';
+          // add subtle pulse randomly
+          if (Math.random() > 0.6) badge.classList.add('pulse');
           badges.appendChild(badge);
           root.appendChild(node);
         });
@@ -255,6 +265,126 @@
         btn.addEventListener('click', createRipple);
       });
     })();
+
+    // Typing effect for hero
+    (function typingEffect(){
+      const el = document.getElementById('typingTarget');
+      if (!el) return;
+      const phrases = ['projektek', 'érdekességek', 'kódminták', 'mini demo-k', 'blog bejegyzések'];
+      let pi = 0, ci = 0, deleting = false;
+      function step(){
+        const cur = phrases[pi];
+        if (!deleting) {
+          el.textContent = cur.slice(0, ci+1);
+          ci++;
+          if (ci >= cur.length) { deleting = true; setTimeout(step, 1200); return; }
+        } else {
+          el.textContent = cur.slice(0, ci-1);
+          ci--;
+          if (ci <= 0) { deleting = false; pi = (pi+1) % phrases.length; }
+        }
+        setTimeout(step, deleting ? 70 : 90);
+      }
+      step();
+    })();
+
+    // 3D tilt for cards
+    function attachCardTilt(){
+      document.querySelectorAll('.card').forEach(card => {
+        const inner = card.querySelector('.card-inner') || card;
+        function onMove(e){
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+          const rotX = (-y) * 6;
+          const rotY = (x) * 10;
+          inner.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(6px)`;
+          card.classList.add('tilt');
+        }
+        function onLeave(){ inner.style.transform = ''; card.classList.remove('tilt'); }
+        card.addEventListener('mousemove', onMove);
+        card.addEventListener('mouseleave', onLeave);
+      });
+    }
+    attachCardTilt();
+
+    // Drag-to-scroll gallery
+    (function dragGallery(){
+      const gallery = document.getElementById('galleryGrid');
+      if (!gallery) return;
+      let isDown=false, startX, scrollLeft;
+      gallery.addEventListener('mousedown', (e)=>{
+        isDown = true; gallery.classList.add('dragging'); startX = e.pageX - gallery.offsetLeft; scrollLeft = gallery.scrollLeft; e.preventDefault();
+      });
+      gallery.addEventListener('mouseleave', ()=>{ isDown=false; gallery.classList.remove('dragging'); });
+      gallery.addEventListener('mouseup', ()=>{ isDown=false; gallery.classList.remove('dragging'); });
+      gallery.addEventListener('mousemove', (e)=>{
+        if(!isDown) return; const x = e.pageX - gallery.offsetLeft; const walk = (x - startX) * 1.2; gallery.scrollLeft = scrollLeft - walk;
+      });
+      // touch support
+      gallery.addEventListener('touchstart', (e)=>{ startX = e.touches[0].pageX - gallery.offsetLeft; scrollLeft = gallery.scrollLeft; });
+      gallery.addEventListener('touchmove', (e)=>{ const x = e.touches[0].pageX - gallery.offsetLeft; const walk = (x - startX) * 1.2; gallery.scrollLeft = scrollLeft - walk; });
+    })();
+
+    // Header parallax on mousemove
+    (function headerParallax(){
+      const hdr = document.querySelector('.header-inner');
+      const bg = document.querySelector('.header-bg');
+      if (!hdr || !bg) return;
+      hdr.addEventListener('mousemove', (e)=>{
+        const r = hdr.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        const tx = x * 18; const ty = y * 8;
+        bg.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+      });
+      hdr.addEventListener('mouseleave', ()=>{ bg.style.transform = ''; });
+    })();
+
+    // Simple confetti burst at coordinates
+    function confettiBurst(x,y){
+      const container = document.createElement('div');
+      container.className = 'confetti';
+      container.style.left = '0'; container.style.top = '0';
+      document.body.appendChild(container);
+      const colors = ['#ff4d4f','#ffd166','#06d6a0','#4d7cff','#d16cff'];
+      for(let i=0;i<18;i++){
+        const p = document.createElement('div'); p.className = 'p';
+        const w = 6 + Math.round(Math.random()*10);
+        p.style.width = w + 'px'; p.style.height = (w+4) + 'px';
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.left = (x + (Math.random()-0.5)*80) + 'px';
+        p.style.top = (y + (Math.random()-0.5)*30) + 'px';
+        p.style.transform = `translate3d(0,0,0) rotate(${Math.random()*360}deg)`;
+        container.appendChild(p);
+        // animate
+        const dx = (Math.random()-0.5) * 300;
+        const dy = 200 + Math.random()*200;
+        const rot = (Math.random()-0.5)*720;
+        requestAnimationFrame(()=>{
+          p.style.transition = 'transform 900ms cubic-bezier(.2,.8,.2,1), opacity 900ms ease';
+          p.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${rot}deg)`;
+          p.style.opacity = '0';
+        });
+      }
+      setTimeout(()=> container.remove(), 1200);
+    }
+
+    // Trigger confetti on copy and keyboard shortcuts
+    const copyBtn = document.getElementById('copyEmail');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', (e) => {
+        const rect = copyBtn.getBoundingClientRect();
+        confettiBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+      });
+    }
+
+    // Keyboard shortcuts: 't' toggle theme, 'g' go to gallery
+    document.addEventListener('keydown', (e) => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.key === 't') { themeBtn.click(); }
+      if (e.key === 'g') { scrollWithOffset('#gallery'); }
+    });
     </script>
 </body>
 </html>
