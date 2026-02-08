@@ -1,0 +1,774 @@
+
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>botondmegintaneten.hu</title>
+    <meta name="description" content="Botond megint a neten – etikus hekk, kódok, tippek és elérhetőség.">
+    <meta property="og:title" content="botondmegintaneten.hu">
+    <meta property="og:description" content="Etikus hekk és kódok – Botond megint a neten">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#0b0f17">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+        <div class="header-bg" aria-hidden="true"></div>
+        <h1 class="logo-wave"><span>b</span><span>o</span><span>t</span><span>o</span><span>n</span><span>d</span><span>m</span><span>e</span><span>g</span><span>i</span><span>n</span><span>t</span><span>a</span><span>n</span><span>e</span><span>t</span><span>e</span><span>n</span><span>.</span><span>h</span><span>u</span></h1>
+            <div class="controls">
+                <button id="themeToggle" class="icon-btn" aria-label="Téma váltása" title="Világos/Sötét mód">🌙</button>
+                <button id="hamburger" class="icon-btn hamburger" aria-label="Menü" title="Menü">☰</button>
+            </div>
+            <nav>
+                <ul id="mainNav">
+                    <li><a href="#home">Főoldal</a></li>
+                    <li><a href="#about">Rólam</a></li>
+                    <li><a href="#content">Tartalom</a></li>
+                    <li><a href="#gallery">Galéria</a></li>
+                    <li><a href="#" class="snake-menu-link">Snake</a></li>
+                    <li><a href="#contact">Elérhetőség</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <section id="home">
+        <div class="hero">
+          <div>
+          <h2>Főoldal</h2>
+          <p class="muted">Az oldal fejlesztés alatt. Kérem az esetleges hibákat jelezze az alábbi e‑mail címen.</p>
+          </div>
+          <div class="typing" aria-hidden="true">Itt lesz majd: <span id="typingTarget"></span><span class="cursor"></span></div>
+        </div>
+        </section>
+        <section id="about">
+            <h2>Rólam</h2>
+            <p>Üdv, Botond vagyok. Szeretném ha ez az oldal egy jó gyakorlás lenne nekem és azon más embereknek aki hozzám hasonlóan érdeklődnek a kódolás és tech iránt.
+            Minden projektem megtalálod <a href="https://github.com/Botirocky" target="_blank" rel="noopener">Github-on.</a></p>
+            <p>A Linktree-men megtalálod a további elérhetőségeim <a href="https://linktr.ee/Botirocky?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnWQNl2-lInl7A3nWM9S7Xys6Ys8_gdXIOU9fBeKkBRAvNe1Qx08PTWVAqwew_aem_MPR7IXLgXqppxHNUVWi5Sg" target="_blank" rel="noopener">itt.</a></p>
+        </section>
+        <section id="content">
+            <h2>Tartalom</h2>
+        <div id="contentList" class="card-grid" aria-live="polite"></div>
+        <template id="cardTpl">
+          <a class="card" target="_blank" rel="noopener">
+          <div class="card-inner">
+            <div class="card-badges"></div>
+            <div class="card-title"></div>
+            <div class="card-meta"></div>
+          </div>
+          </a>
+        </template>
+        </section>
+        <section id="gallery">
+            <h2>Péladképeim</h2>
+            <div class="gallery" id="galleryGrid">
+                <!-- Place your images under html-ek/ or add external URLs below -->
+                <img loading="lazy" src="https://cerebrodigital.net/wp-content/uploads/2025/09/portada-12.jpg" alt="Linus Torvalds" class="glight">
+                <img loading="lazy" src="https://i.scdn.co/image/ab67616d0000b2737c8786f3c0b85ec3a60d011b" alt="Tecak" class="glight">
+                <img loading="lazy" src="https://yt3.googleusercontent.com/ytc/AIdro_k2s1oV-ElOIvdSw3y-93nHW7TioYxFoWwF5i2um4PN-cs=s900-c-k-c0x00ffffff-no-rj" alt="Terry Davis" class="glight">
+            </div>
+        </section>
+        <section id="contact">
+            <h2>Elérhetőség</h2>
+            <p>E‑mail: <a id="emailLink" href="mailto:buczibotond@gmail.com">buczibotond@gmail.com</a>
+                <button id="copyEmail" class="button" type="button">Másolás</button>
+            </p>
+        </section>
+    </main>
+    <!-- Snake Modal -->
+    <div id="snakeModal" class="snake-modal hidden" aria-hidden="true">
+      <div class="snake-modal-backdrop"></div>
+      <div class="snake-modal-content">
+        <div class="snake-modal-header">
+          <h2>Snake Játék</h2>
+          <button id="snakeModalClose" class="icon-btn" aria-label="Bezárás">✕</button>
+        </div>
+        <div class="snake-modal-body">
+          <div class="snake-header">
+            <strong>Játéktábla</strong>
+            <div>
+              <button id="startSnake" class="button" type="button">Start</button>
+              <button id="snakeRestart" class="button" type="button">Újra</button>
+              <button id="snakeResetBest" class="button" type="button">Reset Legjobb</button>
+            </div>
+        </div>
+        <div class="canvas-wrapper"><canvas id="snakeCanvas"></canvas></div>
+        <div class="snake-controls" id="snakeControls">
+          <button class="snake-up" aria-label="Fel">▲</button>
+          <div class="snake-dpad">
+            <button class="snake-left" aria-label="Bal">◄</button>
+            <button class="snake-down" aria-label="Le">▼</button>
+            <button class="snake-right" aria-label="Jobbra">►</button>
+          </div>
+        </div>
+        <div class="snake-footer">
+          <span id="snakeScore">Pont: 0</span>
+          <span id="snakeBest" class="muted">Legjobb: 0</span>
+          <span id="snakeStatus" class="muted"></span>
+        </div>
+        <div class="snake-leaderboard" aria-live="polite">
+          <h4>Ranglista</h4>
+          <ol id="snakeBoard"></ol>
+          <button id="snakeClearBoard" class="button snake-clear" type="button">Töröl ranglistát</button>
+        </div>
+        <form id="snakeEntryForm" class="snake-entry snake-entry hidden" onsubmit="return false;" aria-hidden="true">
+          <div class="snake-entry-inner">
+            <label for="snakeName">Neved a ranglistához:</label>
+            <input id="snakeName" type="text" placeholder="Pl. Boti" aria-label="Név" autofocus />
+          </div>
+          <div class="snake-entry-buttons">
+            <button id="snakeSaveEntry" class="button btn-primary" type="button">✓ Mentés</button>
+            <button id="snakeCancelEntry" class="button" type="button">✕ Mégse</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <button id="toTop" aria-label="Vissza a tetejére" title="Vissza a tetejére">↑</button>
+    <footer>
+        <p>&copy; 2025 Buczi Botond. Minden jog fenntartva.</p>
+    </footer>
+
+    <script>
+    // Theme initialize from system/localStorage
+    (function initTheme(){
+      const stored = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (stored === 'dark' || (!stored && prefersDark)) document.documentElement.classList.add('dark');
+    })();
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js');
+      });
+    }
+
+    // Dark mode toggle
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      themeBtn.textContent = isDark ? '☀️' : '🌙';
+      // microanimation
+      themeBtn.classList.add('spin');
+      setTimeout(() => themeBtn.classList.remove('spin'), 400);
+    });
+    // Set initial icon
+    themeBtn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+
+    // Mobile nav toggle
+    const hamburger = document.getElementById('hamburger');
+    const mainNav = document.getElementById('mainNav');
+    hamburger.addEventListener('click', () => {
+      mainNav.classList.toggle('open');
+    });
+    // Close nav on link click (mobile)
+    mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mainNav.classList.remove('open')));
+
+    // Smooth scroll with offset for sticky header
+    function scrollWithOffset(hash) {
+      const el = document.querySelector(hash);
+      if (!el) return;
+      const y = el.getBoundingClientRect().top + window.scrollY - 70; // header height approx
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        const href = a.getAttribute('href');
+        if (href.length > 1) {
+          e.preventDefault();
+          history.pushState(null, '', href);
+          scrollWithOffset(href);
+        }
+      });
+    });
+
+    // Scroll to top button
+    const toTop = document.getElementById('toTop');
+    const onScroll = () => {
+      const sections = document.querySelectorAll('main section');
+      let currentId = '';
+      const offset = 80;
+      sections.forEach(sec => {
+        const top = sec.offsetTop - offset;
+        if (window.scrollY >= top) currentId = sec.id;
+      });
+      document.querySelectorAll('#mainNav a').forEach(a => {
+        const active = a.getAttribute('href') === '#' + currentId;
+        a.classList.toggle('active', active);
+      });
+      if (window.scrollY > 200) toTop.classList.add('show'); else toTop.classList.remove('show');
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    onScroll();
+
+    // Reveal sections on view with staggered delays
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); } });
+    }, { threshold: 0.08 });
+    const sectionsToReveal = document.querySelectorAll('section');
+    sectionsToReveal.forEach((sec, i) => {
+      sec.style.setProperty('--d', `${i * 80}ms`);
+      io.observe(sec);
+    });
+
+    // Copy email to clipboard
+    document.getElementById('copyEmail').addEventListener('click', async () => {
+      const email = 'buczibotond@gmail.com';
+      try {
+        await navigator.clipboard.writeText(email);
+        const btn = document.getElementById('copyEmail');
+        const old = btn.textContent;
+        btn.textContent = 'Másolva!';
+        setTimeout(() => btn.textContent = old, 1500);
+      } catch (e) {
+        alert('Nem sikerült másolni. E‑mail: ' + email);
+      }
+    });
+
+    // Build Content list from html-ek/ directory using fetch of directory index (works when server exposes listing)
+    async function buildContentList() {
+      const root = document.getElementById('contentList');
+      if (!root) return;
+      const base = 'html-ek/';
+      const badgeMap = [
+        { test: /gal[eé]ria|gallery|kep|image/i, label: 'galéria' },
+        { test: /blog|cikk|article|post/i, label: 'blog' },
+        { test: /projekt|project|code|k[oó]d/i, label: 'projekt' },
+        { test: /teszt|demo|example/i, label: 'demo' },
+      ];
+      try {
+        const res = await fetch(base);
+        const text = await res.text();
+        const links = Array.from(text.matchAll(/href=\"([^\"]+)\"/g)).map(m => m[1])
+          .filter(h => h.endsWith('.html'));
+        const unique = [...new Set(links)].sort((a,b) => a.localeCompare(b));
+        if (unique.length === 0) throw new Error('No index');
+        const tpl = document.getElementById('cardTpl');
+        root.innerHTML = '';
+        unique.forEach(h => {
+          const url = base + h;
+          const name = h.replace(/[-_]/g, ' ').replace(/\.html$/,'');
+          const node = tpl.content.firstElementChild.cloneNode(true);
+          node.href = url;
+          node.querySelector('.card-title').textContent = name;
+          node.querySelector('.card-meta').textContent = `html-ek/${h}`;
+          const badges = node.querySelector('.card-badges');
+          const matched = badgeMap.find(b => b.test.test(h));
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = matched ? matched.label : 'oldal';
+          // add subtle pulse randomly
+          if (Math.random() > 0.6) badge.classList.add('pulse');
+          badges.appendChild(badge);
+          root.appendChild(node);
+        });
+      } catch (err) {
+        // Fallback: list a hint card
+        root.innerHTML = `<div class="card hint"></div>`;
+      }
+    }
+    buildContentList();
+
+    // Lightbox for gallery
+    (function lightbox(){
+      const imgs = document.querySelectorAll('.glight');
+      if (!imgs.length) return;
+      const overlay = document.createElement('div');
+      overlay.className = 'lightbox';
+      overlay.innerHTML = '<button class="close" aria-label="Bezárás">✕</button><img alt="Megnyitott kép">';
+      document.body.appendChild(overlay);
+      const imgTag = overlay.querySelector('img');
+      const closeBtn = overlay.querySelector('.close');
+      function open(src, alt){ imgTag.src = src; imgTag.alt = alt || ''; overlay.classList.add('show'); }
+      function close(){ overlay.classList.remove('show'); imgTag.src=''; imgTag.alt=''; }
+      imgs.forEach(i => i.addEventListener('click', () => open(i.src, i.alt)));
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+      closeBtn.addEventListener('click', close);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    })();
+
+    // Ripple effect on buttons
+    (function attachRipples(){
+      function createRipple(e){
+        const el = e.currentTarget;
+        const rect = el.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height) * 1.2;
+        const span = document.createElement('span');
+        span.className = 'ripple';
+        span.style.width = span.style.height = size + 'px';
+        span.style.left = (e.clientX - rect.left - size/2) + 'px';
+        span.style.top = (e.clientY - rect.top - size/2) + 'px';
+        el.appendChild(span);
+        span.addEventListener('animationend', () => span.remove());
+      }
+      document.querySelectorAll('.button, .icon-btn').forEach(btn => {
+        btn.addEventListener('click', createRipple);
+      });
+    })();
+
+    // Typing effect for hero
+    (function typingEffect(){
+      const el = document.getElementById('typingTarget');
+      if (!el) return;
+      const phrases = ['projektek', 'érdekességek', 'kódminták', 'mini demo-k', 'blog bejegyzések'];
+      let pi = 0, ci = 0, deleting = false;
+      function step(){
+        const cur = phrases[pi];
+        if (!deleting) {
+          el.textContent = cur.slice(0, ci+1);
+          ci++;
+          if (ci >= cur.length) { deleting = true; setTimeout(step, 1200); return; }
+        } else {
+          el.textContent = cur.slice(0, ci-1);
+          ci--;
+          if (ci <= 0) { deleting = false; pi = (pi+1) % phrases.length; }
+        }
+        setTimeout(step, deleting ? 70 : 90);
+      }
+      step();
+    })();
+
+    // 3D tilt for cards
+    function attachCardTilt(){
+      document.querySelectorAll('.card').forEach(card => {
+        const inner = card.querySelector('.card-inner') || card;
+        function onMove(e){
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+          const rotX = (-y) * 6;
+          const rotY = (x) * 10;
+          inner.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(6px)`;
+          card.classList.add('tilt');
+        }
+        function onLeave(){ inner.style.transform = ''; card.classList.remove('tilt'); }
+        card.addEventListener('mousemove', onMove);
+        card.addEventListener('mouseleave', onLeave);
+      });
+    }
+    attachCardTilt();
+
+    // Drag-to-scroll gallery
+    (function dragGallery(){
+      const gallery = document.getElementById('galleryGrid');
+      if (!gallery) return;
+      let isDown=false, startX, scrollLeft;
+      gallery.addEventListener('mousedown', (e)=>{
+        isDown = true; gallery.classList.add('dragging'); startX = e.pageX - gallery.offsetLeft; scrollLeft = gallery.scrollLeft; e.preventDefault();
+      });
+      gallery.addEventListener('mouseleave', ()=>{ isDown=false; gallery.classList.remove('dragging'); });
+      gallery.addEventListener('mouseup', ()=>{ isDown=false; gallery.classList.remove('dragging'); });
+      gallery.addEventListener('mousemove', (e)=>{
+        if(!isDown) return; const x = e.pageX - gallery.offsetLeft; const walk = (x - startX) * 1.2; gallery.scrollLeft = scrollLeft - walk;
+      });
+      // touch support
+      gallery.addEventListener('touchstart', (e)=>{ startX = e.touches[0].pageX - gallery.offsetLeft; scrollLeft = gallery.scrollLeft; });
+      gallery.addEventListener('touchmove', (e)=>{ const x = e.touches[0].pageX - gallery.offsetLeft; const walk = (x - startX) * 1.2; gallery.scrollLeft = scrollLeft - walk; });
+    })();
+
+    // Header parallax on mousemove
+    (function headerParallax(){
+      const hdr = document.querySelector('.header-inner');
+      const bg = document.querySelector('.header-bg');
+      if (!hdr || !bg) return;
+      hdr.addEventListener('mousemove', (e)=>{
+        const r = hdr.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        const tx = x * 18; const ty = y * 8;
+        bg.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+      });
+      hdr.addEventListener('mouseleave', ()=>{ bg.style.transform = ''; });
+    })();
+
+    // Simple confetti burst at coordinates
+    function confettiBurst(x,y){
+      const container = document.createElement('div');
+      container.className = 'confetti';
+      container.style.left = '0'; container.style.top = '0';
+      document.body.appendChild(container);
+      const colors = ['#ff4d4f','#ffd166','#06d6a0','#4d7cff','#d16cff'];
+      for(let i=0;i<18;i++){
+        const p = document.createElement('div'); p.className = 'p';
+        const w = 6 + Math.round(Math.random()*10);
+        p.style.width = w + 'px'; p.style.height = (w+4) + 'px';
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.left = (x + (Math.random()-0.5)*80) + 'px';
+        p.style.top = (y + (Math.random()-0.5)*30) + 'px';
+        p.style.transform = `translate3d(0,0,0) rotate(${Math.random()*360}deg)`;
+        container.appendChild(p);
+        // animate
+        const dx = (Math.random()-0.5) * 300;
+        const dy = 200 + Math.random()*200;
+        const rot = (Math.random()-0.5)*720;
+        requestAnimationFrame(()=>{
+          p.style.transition = 'transform 900ms cubic-bezier(.2,.8,.2,1), opacity 900ms ease';
+          p.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${rot}deg)`;
+          p.style.opacity = '0';
+        });
+      }
+      setTimeout(()=> container.remove(), 1200);
+    }
+
+    // Trigger confetti on copy and keyboard shortcuts
+    const copyBtn = document.getElementById('copyEmail');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', (e) => {
+        const rect = copyBtn.getBoundingClientRect();
+        confettiBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+      });
+    }
+
+    // Keyboard shortcuts: 't' toggle theme, 'g' go to gallery
+    document.addEventListener('keydown', (e) => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.key === 't') { themeBtn.click(); }
+      if (e.key === 'g') { scrollWithOffset('#gallery'); }
+    });
+
+    // Snake game logic
+    (function snakeGame(){
+      const startBtn = document.getElementById('startSnake');
+      const container = document.getElementById('snakeContainer');
+      const closeBtn = document.getElementById('closeSnake');
+      const restartBtn = document.getElementById('snakeRestart');
+      const canvas = document.getElementById('snakeCanvas');
+      const scoreEl = document.getElementById('snakeScore');
+      const statusEl = document.getElementById('snakeStatus');
+      if (!canvas || !startBtn) return;
+      const ctx = canvas.getContext('2d');
+      
+      // Resize canvas to match display size
+      function resizeCanvas(){
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const width = rect.width;
+        const height = width * 9 / 16; // 16:9 aspect ratio
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+        redraw();
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      const cols = 20; const rows = 12; // grid
+      let cellW = Math.floor((canvas.width / window.devicePixelRatio) / cols);
+      let cellH = Math.floor((canvas.height / window.devicePixelRatio) / rows);
+      const GRID_SIZE = 10;
+      const gridStartCol = Math.floor((cols - GRID_SIZE) / 2);
+      const gridStartRow = Math.floor((rows - GRID_SIZE) / 2);
+      const gridEndCol = gridStartCol + GRID_SIZE;
+      const gridEndRow = gridStartRow + GRID_SIZE;
+      let snake = [];
+      let dir = {x:1,y:0};
+      let nextDir = {x:1,y:0};
+      let food = null; let score = 0; let tickId = null; let speed = 120; let running = false;
+      // load best score (migrate old numeric value if present)
+      let best = 0;
+      let bestDate = null;
+      (function loadBest(){
+        const raw = localStorage.getItem('snake_best');
+        if (!raw) return;
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.score === 'number') { best = parsed.score; bestDate = parsed.date || null; return; }
+        } catch (e) {
+          // not JSON, fall through
+        }
+        // legacy numeric value
+        const num = Number(raw);
+        if (!Number.isNaN(num)) best = num;
+      })();
+
+      function placeFood(){
+        while(true){
+          const fx = gridStartCol + Math.floor(Math.random()*GRID_SIZE);
+          const fy = gridStartRow + Math.floor(Math.random()*GRID_SIZE);
+          if (!snake.some(s=>s.x===fx && s.y===fy)){ food = {x:fx,y:fy}; break; }
+        }
+      }
+      function init(){
+        // start with 3 segments, centered in grid
+        const startX = Math.floor((gridStartCol + gridEndCol) / 2);
+        const startY = Math.floor((gridStartRow + gridEndRow) / 2);
+        snake = [{x:startX, y:startY}, {x:startX-1, y:startY}, {x:startX-2, y:startY}];
+        dir = {x:1,y:0}; nextDir = {x:1,y:0}; score = 0; running = false; statusEl.textContent = '';
+        placeFood(); draw(); updateScore();
+        const bestEl = document.getElementById('snakeBest'); if (bestEl) bestEl.textContent = bestDisplayText();
+      }
+      function updateScore(){ scoreEl.textContent = 'Pont: ' + score; updateBestIfNeeded(); }
+      function bestDisplayText(){ return bestDate ? ('Legjobb: ' + best + ' (' + new Date(bestDate).toLocaleDateString() + ')') : ('Legjobb: ' + best); }
+      function updateBestIfNeeded(){
+        const bestEl = document.getElementById('snakeBest');
+        if (!bestEl) return;
+        if (score > best) {
+          best = score;
+          bestDate = new Date().toISOString();
+          try { localStorage.setItem('snake_best', JSON.stringify({ score: best, date: bestDate })); } catch(e){}
+          bestEl.textContent = bestDisplayText();
+          const r = canvas.getBoundingClientRect();
+          confettiBurst(r.left + r.width/2, r.top + r.height/2);
+        } else {
+          bestEl.textContent = bestDisplayText();
+        }
+      }
+      // Leaderboard (multiple entries)
+      const LB_KEY = 'snake_leaderboard_v1';
+      const LB_MAX = 10;
+      function loadBoard(){
+        try {
+          const raw = localStorage.getItem(LB_KEY);
+          if (!raw) return [];
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) return arr;
+        } catch(e){}
+        return [];
+      }
+      function saveBoard(arr){
+        try { localStorage.setItem(LB_KEY, JSON.stringify(arr.slice(0,LB_MAX))); } catch(e){}
+      }
+      function renderBoard(){
+        const ol = document.getElementById('snakeBoard'); if (!ol) return;
+        const arr = loadBoard();
+        ol.innerHTML = '';
+        if (arr.length === 0) { ol.innerHTML = '<li class="muted">Még nincs bejegyzés</li>'; return; }
+        arr.forEach(item => {
+          const li = document.createElement('li');
+          const name = document.createElement('span'); name.className='name'; name.textContent = item.name || 'Anon';
+          const meta = document.createElement('span'); meta.className='meta'; meta.textContent = item.score + ' • ' + (item.date ? new Date(item.date).toLocaleDateString() : '');
+          li.appendChild(name); li.appendChild(meta); ol.appendChild(li);
+        });
+      }
+      function tryAddToBoard(score){
+        if (score <= 0) return false;
+        const arr = loadBoard();
+        const lowest = arr.length < LB_MAX ? -1 : arr[arr.length-1].score;
+        if (arr.length < LB_MAX || score > lowest){
+          let name = prompt('Gratulálok! Add meg a neved a ranglistához (üres = Anon):');
+          if (!name) name = 'Anon';
+          const entry = { name: name, score: score, date: new Date().toISOString() };
+          arr.push(entry);
+          arr.sort((a,b)=> b.score - a.score);
+          saveBoard(arr);
+          renderBoard();
+          const r = canvas.getBoundingClientRect(); confettiBurst(r.left + r.width/2, r.top + r.height/2);
+          return true;
+        }
+        return false;
+      }
+      function draw(){
+        // Recalculate cell sizes based on current canvas size
+        cellW = Math.floor((canvas.width / window.devicePixelRatio) / cols);
+        cellH = Math.floor((canvas.height / window.devicePixelRatio) / rows);
+        
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        
+        // draw grid (10x10 visible cells)
+        ctx.strokeStyle = 'rgba(34,139,34,0.3)';
+        ctx.lineWidth = 2;
+        // grid border
+        const gridLeft = gridStartCol * cellW;
+        const gridTop = gridStartRow * cellH;
+        const gridRight = gridEndCol * cellW;
+        const gridBottom = gridEndRow * cellH;
+        ctx.strokeRect(gridLeft, gridTop, gridRight - gridLeft, gridBottom - gridTop);
+        
+        // grid lines
+        ctx.strokeStyle = 'rgba(34,139,34,0.15)';
+        ctx.lineWidth = 1;
+        // vertical lines
+        for (let i = 1; i < GRID_SIZE; i++) {
+          const x = (gridStartCol + i) * cellW;
+          ctx.beginPath();
+          ctx.moveTo(x, gridTop);
+          ctx.lineTo(x, gridBottom);
+          ctx.stroke();
+        }
+        // horizontal lines
+        for (let i = 1; i < GRID_SIZE; i++) {
+          const y = (gridStartRow + i) * cellH;
+          ctx.beginPath();
+          ctx.moveTo(gridLeft, y);
+          ctx.lineTo(gridRight, y);
+          ctx.stroke();
+        }
+        
+        // draw food
+        if (food){ ctx.fillStyle = '#ff6b6b'; ctx.fillRect(food.x*cellW+2, food.y*cellH+2, cellW-4, cellH-4); }
+        
+        // draw snake: green gradient
+        snake.forEach((s,i)=>{
+          const brightness = 1 - (i / snake.length) * 0.3;
+          const green = Math.round(100 + brightness * 100);
+          ctx.fillStyle = 'rgb(34, ' + green + ', 34)';
+          ctx.fillRect(s.x*cellW+1, s.y*cellH+1, cellW-2, cellH-2);
+        });
+      }
+      
+      function redraw(){
+        if (snake.length > 0) draw();
+      }
+      // entry form helpers
+      let pendingEntry = null;
+      function showEntryForm(score, durationSec, level){
+        pendingEntry = { score: score, duration: durationSec, level: level };
+        const form = document.getElementById('snakeEntryForm');
+        const nameIn = document.getElementById('snakeName');
+        if (!form || !nameIn) return;
+        nameIn.value = '';
+        form.classList.remove('hidden'); form.setAttribute('aria-hidden','false');
+        nameIn.focus();
+      }
+      function hideEntryForm(){ pendingEntry = null; const form = document.getElementById('snakeEntryForm'); if (form){ form.classList.add('hidden'); form.setAttribute('aria-hidden','true'); } }
+
+      function gameOver(){
+        stop(); statusEl.textContent = 'Vesztettél!'; statusEl.classList.add('snake-lose'); updateBestIfNeeded();
+        // compute duration and level
+        const durationSec = startTime ? Math.round((Date.now() - startTime)/1000) : 0;
+        const level = snake.length || 0;
+        showEntryForm(score, durationSec, level);
+      }
+      function tick(){
+        dir = nextDir;
+        const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+        // grid boundary collision (loss if hitting frame border)
+        if (head.x < gridStartCol || head.x >= gridEndCol || head.y < gridStartRow || head.y >= gridEndRow) { gameOver(); return; }
+        // self collision
+        if (snake.some(s=>s.x===head.x && s.y===head.y)) { gameOver(); return; }
+        snake.unshift(head);
+        if (food && head.x === food.x && head.y === food.y){ score++; placeFood(); updateScore(); }
+        else snake.pop();
+        draw();
+      }
+      let startTime = null;
+      function start(){ if (running) return; running = true; statusEl.textContent = ''; startTime = Date.now(); startBtn.style.opacity = '1'; startBtn.disabled = false; tickId = setInterval(tick, speed); }
+      function stop(){ running = false; if (tickId) clearInterval(tickId); tickId = null; }
+
+      // controls
+      document.addEventListener('keydown', (e)=>{
+        if (!running && !container.classList.contains('snake-hidden')) return;
+        const k = e.key;
+        if (k === 'ArrowUp' || k === 'w') { if (dir.y!==1) nextDir = {x:0,y:-1}; }
+        if (k === 'ArrowDown' || k === 's') { if (dir.y!==-1) nextDir = {x:0,y:1}; }
+        if (k === 'ArrowLeft' || k === 'a') { if (dir.x!==1) nextDir = {x:-1,y:0}; }
+        if (k === 'ArrowRight' || k === 'd') { if (dir.x!==-1) nextDir = {x:1,y:0}; }
+      });
+
+      // Touch/mobile controls
+      const upBtn = document.querySelector('.snake-up');
+      const downBtn = document.querySelector('.snake-down');
+      const leftBtn = document.querySelector('.snake-left');
+      const rightBtn = document.querySelector('.snake-right');
+      
+      if (upBtn) upBtn.addEventListener('click', () => { if (dir.y!==1) nextDir = {x:0,y:-1}; });
+      if (downBtn) downBtn.addEventListener('click', () => { if (dir.y!==-1) nextDir = {x:0,y:1}; });
+      if (leftBtn) leftBtn.addEventListener('click', () => { if (dir.x!==1) nextDir = {x:-1,y:0}; });
+      if (rightBtn) rightBtn.addEventListener('click', () => { if (dir.x!==-1) nextDir = {x:1,y:0}; });
+      
+      // Swipe support
+      let touchStartX = 0, touchStartY = 0;
+      canvas.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      });
+      canvas.addEventListener('touchmove', (e) => {
+        if (!running) return;
+        e.preventDefault();
+        const deltaX = e.touches[0].clientX - touchStartX;
+        const deltaY = e.touches[0].clientY - touchStartY;
+        const threshold = 30;
+        
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // horizontal swipe
+          if (deltaX > threshold && dir.x !== 1) nextDir = {x:1,y:0};
+          if (deltaX < -threshold && dir.x !== -1) nextDir = {x:-1,y:0};
+        } else {
+          // vertical swipe
+          if (deltaY > threshold && dir.y !== -1) nextDir = {x:0,y:1};
+          if (deltaY < -threshold && dir.y !== 1) nextDir = {x:0,y:-1};
+        }
+      });
+
+      // UI handlers
+      startBtn.addEventListener('click', ()=>{ init(); start(); startBtn.style.opacity = '0.6'; startBtn.disabled = true; });
+      closeBtn && closeBtn.addEventListener('click', ()=>{ stop(); });
+      restartBtn && restartBtn.addEventListener('click', ()=>{ stop(); init(); start(); });
+      const resetBtn = document.getElementById('snakeResetBest');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', ()=>{
+          best = 0; bestDate = null; try { localStorage.removeItem('snake_best'); } catch(e){};
+          const bestEl = document.getElementById('snakeBest'); if (bestEl) bestEl.textContent = bestDisplayText();
+        });
+      }
+      // entry form handlers
+      const saveBtn = document.getElementById('snakeSaveEntry');
+      const cancelBtn = document.getElementById('snakeCancelEntry');
+      if (saveBtn){ saveBtn.addEventListener('click', ()=>{
+        if (!pendingEntry) return; const name = (document.getElementById('snakeName').value || 'Anon').trim();
+        const entry = { name: name, score: pendingEntry.score, date: new Date().toISOString(), level: pendingEntry.level, duration: pendingEntry.duration };
+        const arr = loadBoard(); arr.push(entry); arr.sort((a,b)=> b.score - a.score); saveBoard(arr); renderBoard(); hideEntryForm();
+      }); }
+      if (cancelBtn){ cancelBtn.addEventListener('click', ()=>{ hideEntryForm(); }); }
+      const clearBoardBtn = document.getElementById('snakeClearBoard');
+      if (clearBoardBtn){ clearBoardBtn.addEventListener('click', ()=>{ if (confirm('Töröljem a ranglistát?')){ try { localStorage.removeItem(LB_KEY); } catch(e){}; renderBoard(); } }); }
+
+      // initialize
+      init(); renderBoard();
+    })();
+
+    // Snake Modal Handlers
+    (function() {
+      const modal = document.getElementById('snakeModal');
+      const snakeMenuLink = document.querySelector('.snake-menu-link');
+      const closeBtn = document.getElementById('snakeModalClose');
+      const backdrop = document.querySelector('.snake-modal-backdrop');
+
+      function openModal() {
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeModal() {
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      if (snakeMenuLink) {
+        snakeMenuLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal();
+        });
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+      }
+
+      if (backdrop) {
+        backdrop.addEventListener('click', closeModal);
+      }
+
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+    })();
+    </script>
+</body>
+</html>
