@@ -99,7 +99,7 @@
               <button id="snakeResetBest" class="button" type="button">Reset Legjobb</button>
             </div>
         </div>
-        <div class="canvas-wrapper"><canvas id="snakeCanvas" width="400" height="240"></canvas></div>
+        <div class="canvas-wrapper"><canvas id="snakeCanvas"></canvas></div>
         <div class="snake-controls" id="snakeControls">
           <button class="snake-up" aria-label="Fel">▲</button>
           <div class="snake-dpad">
@@ -446,9 +446,26 @@
       const statusEl = document.getElementById('snakeStatus');
       if (!canvas || !startBtn) return;
       const ctx = canvas.getContext('2d');
+      
+      // Resize canvas to match display size
+      function resizeCanvas(){
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const width = rect.width;
+        const height = width * 9 / 16; // 16:9 aspect ratio
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+        redraw();
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
       const cols = 20; const rows = 12; // grid
-      const cellW = Math.floor(canvas.width / cols);
-      const cellH = Math.floor(canvas.height / rows);
+      let cellW = Math.floor((canvas.width / window.devicePixelRatio) / cols);
+      let cellH = Math.floor((canvas.height / window.devicePixelRatio) / rows);
       const GRID_SIZE = 10;
       const gridStartCol = Math.floor((cols - GRID_SIZE) / 2);
       const gridStartRow = Math.floor((rows - GRID_SIZE) / 2);
@@ -552,6 +569,10 @@
         return false;
       }
       function draw(){
+        // Recalculate cell sizes based on current canvas size
+        cellW = Math.floor((canvas.width / window.devicePixelRatio) / cols);
+        cellH = Math.floor((canvas.height / window.devicePixelRatio) / rows);
+        
         ctx.clearRect(0,0,canvas.width,canvas.height);
         
         // draw grid (10x10 visible cells)
@@ -594,6 +615,10 @@
           ctx.fillStyle = 'rgb(34, ' + green + ', 34)';
           ctx.fillRect(s.x*cellW+1, s.y*cellH+1, cellW-2, cellH-2);
         });
+      }
+      
+      function redraw(){
+        if (snake.length > 0) draw();
       }
       // entry form helpers
       let pendingEntry = null;
