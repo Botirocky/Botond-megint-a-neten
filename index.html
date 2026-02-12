@@ -86,7 +86,7 @@
             <div style="display: grid; grid-template-columns: 1fr; gap: 24px; max-width: 600px; margin: 0 auto;">
               <!-- Canvas -->
               <div style="display:flex; justify-content:center;">
-                <canvas id="inlineSnakeCanvas" width="400" height="400" aria-label="Snake játék" style="border: 3px solid var(--primary); display: block; width: 100%; height: auto; max-width: 400px; aspect-ratio: 1; background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); border-radius: 12px; box-shadow: 0 8px 32px rgba(77, 124, 255, 0.2);"></canvas>
+                <canvas id="inlineSnakeCanvas" class="snake-canvas" width="400" height="400" aria-label="Snake játék"></canvas>
               </div>
 
               <!-- Controls & Info -->
@@ -138,7 +138,7 @@
               <button id="snakeResetBest" class="button" type="button">Reset Legjobb</button>
             </div>
         </div>
-        <div class="canvas-wrapper"><canvas id="snakeCanvas"></canvas></div>
+        <div class="canvas-wrapper"><canvas id="snakeCanvas" class="snake-canvas"></canvas></div>
         <div class="snake-controls" id="snakeControls">
           <button class="snake-up" aria-label="Fel">▲</button>
           <div class="snake-dpad">
@@ -981,14 +981,16 @@
         running = true;
         paused = false;
         startBtn.textContent = '▶ Folytatás';
-        pauseBtn.textContent = '⏸ Szünet';
+        if (pauseBtn) pauseBtn.textContent = '⏸ Szünet';
         gameLoop = setInterval(update, 100);
       }
 
       function togglePause() {
         if (!running) return;
         paused = !paused;
-        startBtn.textContent = paused ? '▶ Folytatás' : '⏸ Szünet';
+        if (pauseBtn) {
+          pauseBtn.textContent = paused ? '▶ Folytatás' : '⏸ Szünet';
+        }
       }
 
       function reset() {
@@ -1002,7 +1004,7 @@
         running = false;
         paused = false;
         startBtn.textContent = '▶ Start';
-        pauseBtn.textContent = '⏸ Szünet';
+        if (pauseBtn) pauseBtn.textContent = '⏸ Szünet';
         draw();
       }
 
