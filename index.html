@@ -474,294 +474,253 @@
       if (e.key === 'g') { scrollWithOffset('#gallery'); }
     });
 
-    // Snake game logic
+    // Snake game logic (simplified & robust)
     (function snakeGame(){
-      const startBtn = document.getElementById('startSnake');
+      const startBtn   = document.getElementById('startSnake');
       const restartBtn = document.getElementById('snakeRestart');
-      const canvas = document.getElementById('snakeCanvas');
-      const scoreEl = document.getElementById('snakeScore');
-      const statusEl = document.getElementById('snakeStatus');
-      if (!canvas || !startBtn) return;
-      const ctx = canvas.getContext('2d');
-      
-      // Resize canvas to match display size
-      function resizeCanvas(){
-        const rect = canvas.parentElement.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        const width = rect.width;
-        const height = width * 9 / 16; // 16:9 aspect ratio
-        canvas.style.width = width + 'px';
-        canvas.style.height = height + 'px';
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
-        ctx.scale(dpr, dpr);
-        redraw();
+      const resetBtn   = document.getElementById('snakeResetBest');
+      const canvas     = document.getElementById('snakeCanvas');
+      const scoreEl    = document.getElementById('snakeScore');
+      const bestEl     = document.getElementById('snakeBest');
+      const statusEl   = document.getElementById('snakeStatus');
+
+      if (!canvas || !startBtn || !scoreEl || !bestEl || !statusEl) {
+        return;
       }
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
-      
-      const cols = 20; const rows = 12; // grid
-      let cellW = Math.floor((canvas.width / window.devicePixelRatio) / cols);
-      let cellH = Math.floor((canvas.height / window.devicePixelRatio) / rows);
-      const GRID_SIZE = 10;
-      const gridStartCol = Math.floor((cols - GRID_SIZE) / 2);
-      const gridStartRow = Math.floor((rows - GRID_SIZE) / 2);
-      const gridEndCol = gridStartCol + GRID_SIZE;
-      const gridEndRow = gridStartRow + GRID_SIZE;
-      let snake = [];
-      let dir = {x:1,y:0};
-      let nextDir = {x:1,y:0};
-      let food = null; let score = 0; let tickId = null; let speed = 120; let running = false;
-      // load best score (migrate old numeric value if present)
-      let best = 0;
-      let bestDate = null;
+
+      const ctx = canvas.getContext('2d');
+
+      const GRID_SIZE   = 16;
+      const TICK_MS     = 220;
+      let tileSize      = 20;
+
+      let snake   = [];
+      let dir     = { x: 1, y: 0 };
+      let nextDir = { x: 1, y: 0 };
+      let food    = null;
+      let score   = 0;
+      let best    = 0;
+      let loopId  = null;
+      let running = false;
+
+      // Best score persistence
       (function loadBest(){
-        const raw = localStorage.getItem('snake_best');
-        if (!raw) return;
         try {
+          const raw = localStorage.getItem('snake_best_v2');
+          if (!raw) return;
           const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed.score === 'number') { best = parsed.score; bestDate = parsed.date || null; return; }
-        } catch (e) {
-          // not JSON, fall through
-        }
-        // legacy numeric value
-        const num = Number(raw);
-        if (!Number.isNaN(num)) best = num;
+          if (parsed && typeof parsed.score === 'number') {
+            best = parsed.score;
+          }
+        } catch(e){}
       })();
 
-      function placeFood(){
-        while(true){
-          const fx = gridStartCol + Math.floor(Math.random()*GRID_SIZE);
-          const fy = gridStartRow + Math.floor(Math.random()*GRID_SIZE);
-          if (!snake.some(s=>s.x===fx && s.y===fy)){ food = {x:fx,y:fy}; break; }
-        }
+      function saveBest(){
+        try {
+          localStorage.setItem('snake_best_v2', JSON.stringify({ score: best }));
+        } catch(e){}
       }
-      function init(){
-        // start with 3 segments, centered in grid
-        const startX = Math.floor((gridStartCol + gridEndCol) / 2);
-        const startY = Math.floor((gridStartRow + gridEndRow) / 2);
-        snake = [{x:startX, y:startY}, {x:startX-1, y:startY}, {x:startX-2, y:startY}];
-        dir = {x:1,y:0}; nextDir = {x:1,y:0}; score = 0; running = false; statusEl.textContent = '';
-        placeFood(); draw(); updateScore();
-        const bestEl = document.getElementById('snakeBest'); if (bestEl) bestEl.textContent = bestDisplayText();
-      }
-      function updateScore(){ scoreEl.textContent = 'Pont: ' + score; updateBestIfNeeded(); }
-      function bestDisplayText(){ return bestDate ? ('Legjobb: ' + best + ' (' + new Date(bestDate).toLocaleDateString() + ')') : ('Legjobb: ' + best); }
-      function updateBestIfNeeded(){
-        const bestEl = document.getElementById('snakeBest');
-        if (!bestEl) return;
+
+      function updateScore(){
+        scoreEl.textContent = 'Pont: ' + score;
         if (score > best) {
           best = score;
-          bestDate = new Date().toISOString();
-          try { localStorage.setItem('snake_best', JSON.stringify({ score: best, date: bestDate })); } catch(e){}
-          bestEl.textContent = bestDisplayText();
+          saveBest();
+          bestEl.textContent = 'Legjobb: ' + best;
           const r = canvas.getBoundingClientRect();
           confettiBurst(r.left + r.width/2, r.top + r.height/2);
         } else {
-          bestEl.textContent = bestDisplayText();
+          bestEl.textContent = 'Legjobb: ' + best;
         }
       }
-      // Leaderboard (multiple entries)
-      const LB_KEY = 'snake_leaderboard_v1';
-      const LB_MAX = 10;
-      function loadBoard(){
-        try {
-          const raw = localStorage.getItem(LB_KEY);
-          if (!raw) return [];
-          const arr = JSON.parse(raw);
-          if (Array.isArray(arr)) return arr;
-        } catch(e){}
-        return [];
-      }
-      function saveBoard(arr){
-        try { localStorage.setItem(LB_KEY, JSON.stringify(arr.slice(0,LB_MAX))); } catch(e){}
-      }
-      function renderBoard(){
-        const ol = document.getElementById('snakeBoard'); if (!ol) return;
-        const arr = loadBoard();
-        ol.innerHTML = '';
-        if (arr.length === 0) { ol.innerHTML = '<li class="muted">Még nincs bejegyzés</li>'; return; }
-        arr.forEach(item => {
-          const li = document.createElement('li');
-          const name = document.createElement('span'); name.className='name'; name.textContent = item.name || 'Anon';
-          const meta = document.createElement('span'); meta.className='meta'; meta.textContent = item.score + ' • ' + (item.date ? new Date(item.date).toLocaleDateString() : '');
-          li.appendChild(name); li.appendChild(meta); ol.appendChild(li);
-        });
-      }
-      function tryAddToBoard(score){
-        if (score <= 0) return false;
-        const arr = loadBoard();
-        const lowest = arr.length < LB_MAX ? -1 : arr[arr.length-1].score;
-        if (arr.length < LB_MAX || score > lowest){
-          let name = prompt('Gratulálok! Add meg a neved a ranglistához (üres = Anon):');
-          if (!name) name = 'Anon';
-          const entry = { name: name, score: score, date: new Date().toISOString() };
-          arr.push(entry);
-          arr.sort((a,b)=> b.score - a.score);
-          saveBoard(arr);
-          renderBoard();
-          const r = canvas.getBoundingClientRect(); confettiBurst(r.left + r.width/2, r.top + r.height/2);
-          return true;
-        }
-        return false;
-      }
-      function draw(){
-        // Recalculate cell sizes based on current canvas size
-        cellW = Math.floor((canvas.width / window.devicePixelRatio) / cols);
-        cellH = Math.floor((canvas.height / window.devicePixelRatio) / rows);
-        
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        
-        // draw grid (10x10 visible cells)
-        ctx.strokeStyle = 'rgba(34,139,34,0.3)';
-        ctx.lineWidth = 2;
-        // grid border
-        const gridLeft = gridStartCol * cellW;
-        const gridTop = gridStartRow * cellH;
-        const gridRight = gridEndCol * cellW;
-        const gridBottom = gridEndRow * cellH;
-        ctx.strokeRect(gridLeft, gridTop, gridRight - gridLeft, gridBottom - gridTop);
-        
-        // grid lines
-        ctx.strokeStyle = 'rgba(34,139,34,0.15)';
-        ctx.lineWidth = 1;
-        // vertical lines
-        for (let i = 1; i < GRID_SIZE; i++) {
-          const x = (gridStartCol + i) * cellW;
-          ctx.beginPath();
-          ctx.moveTo(x, gridTop);
-          ctx.lineTo(x, gridBottom);
-          ctx.stroke();
-        }
-        // horizontal lines
-        for (let i = 1; i < GRID_SIZE; i++) {
-          const y = (gridStartRow + i) * cellH;
-          ctx.beginPath();
-          ctx.moveTo(gridLeft, y);
-          ctx.lineTo(gridRight, y);
-          ctx.stroke();
-        }
-        
-        // draw food
-        if (food){ ctx.fillStyle = '#ff6b6b'; ctx.fillRect(food.x*cellW+2, food.y*cellH+2, cellW-4, cellH-4); }
-        
-        // draw snake: green gradient
-        snake.forEach((s,i)=>{
-          const brightness = 1 - (i / snake.length) * 0.3;
-          const green = Math.round(100 + brightness * 100);
-          ctx.fillStyle = 'rgb(34, ' + green + ', 34)';
-          ctx.fillRect(s.x*cellW+1, s.y*cellH+1, cellW-2, cellH-2);
-        });
-      }
-      
-      function redraw(){
-        if (snake.length > 0) draw();
-      }
-      // entry form helpers
-      let pendingEntry = null;
-      function showEntryForm(score, durationSec, level){
-        pendingEntry = { score: score, duration: durationSec, level: level };
-        const form = document.getElementById('snakeEntryForm');
-        const nameIn = document.getElementById('snakeName');
-        if (!form || !nameIn) return;
-        nameIn.value = '';
-        form.classList.remove('hidden'); form.setAttribute('aria-hidden','false');
-        nameIn.focus();
-      }
-      function hideEntryForm(){ pendingEntry = null; const form = document.getElementById('snakeEntryForm'); if (form){ form.classList.add('hidden'); form.setAttribute('aria-hidden','true'); } }
 
-      function gameOver(){
-        stop(); statusEl.textContent = 'Vesztettél!'; statusEl.classList.add('snake-lose'); updateBestIfNeeded();
-        // compute duration and level
-        const durationSec = startTime ? Math.round((Date.now() - startTime)/1000) : 0;
-        const level = snake.length || 0;
-        showEntryForm(score, durationSec, level);
-      }
-      function tick(){
-        dir = nextDir;
-        const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-        // grid boundary collision (loss if hitting frame border)
-        if (head.x < gridStartCol || head.x >= gridEndCol || head.y < gridStartRow || head.y >= gridEndRow) { gameOver(); return; }
-        // self collision
-        if (snake.some(s=>s.x===head.x && s.y===head.y)) { gameOver(); return; }
-        snake.unshift(head);
-        if (food && head.x === food.x && head.y === food.y){ score++; placeFood(); updateScore(); }
-        else snake.pop();
+      function resizeCanvas(){
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const size = Math.min(rect.width, 400);
+        canvas.width  = size;
+        canvas.height = size;
+        tileSize = size / GRID_SIZE;
         draw();
       }
-      let startTime = null;
-      function start(){ if (running) return; running = true; statusEl.textContent = ''; startTime = Date.now(); startBtn.style.opacity = '1'; startBtn.disabled = false; tickId = setInterval(tick, speed); }
-      function stop(){ running = false; if (tickId) clearInterval(tickId); tickId = null; }
 
-      // controls
-      document.addEventListener('keydown', (e)=>{
-        if (!running) return;
-        const k = e.key;
-        if (k === 'ArrowUp' || k === 'w') { if (dir.y!==1) nextDir = {x:0,y:-1}; }
-        if (k === 'ArrowDown' || k === 's') { if (dir.y!==-1) nextDir = {x:0,y:1}; }
-        if (k === 'ArrowLeft' || k === 'a') { if (dir.x!==1) nextDir = {x:-1,y:0}; }
-        if (k === 'ArrowRight' || k === 'd') { if (dir.x!==-1) nextDir = {x:1,y:0}; }
-      });
-
-      // Touch/mobile controls
-      const upBtn = document.querySelector('.snake-up');
-      const downBtn = document.querySelector('.snake-down');
-      const leftBtn = document.querySelector('.snake-left');
-      const rightBtn = document.querySelector('.snake-right');
-      
-      if (upBtn) upBtn.addEventListener('click', () => { if (dir.y!==1) nextDir = {x:0,y:-1}; });
-      if (downBtn) downBtn.addEventListener('click', () => { if (dir.y!==-1) nextDir = {x:0,y:1}; });
-      if (leftBtn) leftBtn.addEventListener('click', () => { if (dir.x!==1) nextDir = {x:-1,y:0}; });
-      if (rightBtn) rightBtn.addEventListener('click', () => { if (dir.x!==-1) nextDir = {x:1,y:0}; });
-      
-      // Swipe support
-      let touchStartX = 0, touchStartY = 0;
-      canvas.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-      });
-      canvas.addEventListener('touchmove', (e) => {
-        if (!running) return;
-        e.preventDefault();
-        const deltaX = e.touches[0].clientX - touchStartX;
-        const deltaY = e.touches[0].clientY - touchStartY;
-        const threshold = 30;
-        
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          // horizontal swipe
-          if (deltaX > threshold && dir.x !== 1) nextDir = {x:1,y:0};
-          if (deltaX < -threshold && dir.x !== -1) nextDir = {x:-1,y:0};
-        } else {
-          // vertical swipe
-          if (deltaY > threshold && dir.y !== -1) nextDir = {x:0,y:1};
-          if (deltaY < -threshold && dir.y !== 1) nextDir = {x:0,y:-1};
+      function randomFreeCell(){
+        while (true) {
+          const x = Math.floor(Math.random() * GRID_SIZE);
+          const y = Math.floor(Math.random() * GRID_SIZE);
+          if (!snake.some(s => s.x === x && s.y === y)) return { x, y };
         }
-      });
+      }
 
-      // UI handlers
-      startBtn.addEventListener('click', ()=>{ init(); start(); startBtn.style.opacity = '0.6'; startBtn.disabled = true; });
-      restartBtn && restartBtn.addEventListener('click', ()=>{ stop(); init(); start(); });
-      const resetBtn = document.getElementById('snakeResetBest');
-      if (resetBtn) {
-        resetBtn.addEventListener('click', ()=>{
-          best = 0; bestDate = null; try { localStorage.removeItem('snake_best'); } catch(e){};
-          const bestEl = document.getElementById('snakeBest'); if (bestEl) bestEl.textContent = bestDisplayText();
+      function init(){
+        const mid = Math.floor(GRID_SIZE / 2);
+        snake = [
+          { x: mid,     y: mid },
+          { x: mid - 1, y: mid },
+          { x: mid - 2, y: mid }
+        ];
+        dir     = { x: 1, y: 0 };
+        nextDir = { x: 1, y: 0 };
+        food    = randomFreeCell();
+        score   = 0;
+        running = false;
+        statusEl.textContent = '';
+        statusEl.classList.remove('snake-lose');
+        updateScore();
+        draw();
+      }
+
+      function draw(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // background
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // grid
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= GRID_SIZE; i++) {
+          const p = i * tileSize;
+          ctx.beginPath();
+          ctx.moveTo(p, 0);
+          ctx.lineTo(p, canvas.height);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(0, p);
+          ctx.lineTo(canvas.width, p);
+          ctx.stroke();
+        }
+
+        // food
+        if (food) {
+          ctx.fillStyle = '#f97316';
+          const fx = food.x * tileSize + tileSize / 2;
+          const fy = food.y * tileSize + tileSize / 2;
+          ctx.beginPath();
+          ctx.arc(fx, fy, tileSize * 0.35, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // snake
+        snake.forEach((seg, idx) => {
+          const hue = 140;
+          const light = 45 + (idx / snake.length) * 20;
+          ctx.fillStyle = `hsl(${hue}, 70%, ${light}%)`;
+          ctx.fillRect(
+            seg.x * tileSize + 2,
+            seg.y * tileSize + 2,
+            tileSize - 4,
+            tileSize - 4
+          );
+
+          if (idx === 0) {
+            ctx.strokeStyle = `hsl(${hue}, 95%, 80%)`;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(
+              seg.x * tileSize + 2,
+              seg.y * tileSize + 2,
+              tileSize - 4,
+              tileSize - 4
+            );
+          }
         });
       }
-      // entry form handlers
-      const saveBtn = document.getElementById('snakeSaveEntry');
-      const cancelBtn = document.getElementById('snakeCancelEntry');
-      if (saveBtn){ saveBtn.addEventListener('click', ()=>{
-        if (!pendingEntry) return; const name = (document.getElementById('snakeName').value || 'Anon').trim();
-        const entry = { name: name, score: pendingEntry.score, date: new Date().toISOString(), level: pendingEntry.level, duration: pendingEntry.duration };
-        const arr = loadBoard(); arr.push(entry); arr.sort((a,b)=> b.score - a.score); saveBoard(arr); renderBoard(); hideEntryForm();
-      }); }
-      if (cancelBtn){ cancelBtn.addEventListener('click', ()=>{ hideEntryForm(); }); }
-      const clearBoardBtn = document.getElementById('snakeClearBoard');
-      if (clearBoardBtn){ clearBoardBtn.addEventListener('click', ()=>{ if (confirm('Töröljem a ranglistát?')){ try { localStorage.removeItem(LB_KEY); } catch(e){}; renderBoard(); } }); }
 
-      // initialize
-      init(); renderBoard();
+      function step(){
+        if (!running) return;
+
+        dir = nextDir;
+        const head = {
+          x: snake[0].x + dir.x,
+          y: snake[0].y + dir.y
+        };
+
+        // wall collision
+        if (
+          head.x < 0 || head.x >= GRID_SIZE ||
+          head.y < 0 || head.y >= GRID_SIZE
+        ) {
+          return gameOver();
+        }
+
+        // self collision
+        if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+          return gameOver();
+        }
+
+        snake.unshift(head);
+
+        if (food && head.x === food.x && head.y === food.y) {
+          score++;
+          updateScore();
+          food = randomFreeCell();
+        } else {
+          snake.pop();
+        }
+
+        draw();
+      }
+
+      function gameOver(){
+        running = false;
+        if (loopId) clearInterval(loopId);
+        loopId = null;
+        statusEl.textContent = 'Vesztettél!';
+        statusEl.classList.add('snake-lose');
+      }
+
+      function startGame(){
+        if (running) return;
+        running = true;
+        statusEl.textContent = '';
+        if (loopId) clearInterval(loopId);
+        loopId = setInterval(step, TICK_MS);
+      }
+
+      function restartGame(){
+        if (loopId) clearInterval(loopId);
+        loopId = null;
+        init();
+        startGame();
+      }
+
+      // keyboard controls
+      document.addEventListener('keydown', (e) => {
+        const k = e.key;
+        if (k === 'ArrowUp' || k === 'w')  { if (dir.y !== 1)  nextDir = { x: 0,  y: -1 }; }
+        if (k === 'ArrowDown' || k === 's'){ if (dir.y !== -1) nextDir = { x: 0,  y: 1  }; }
+        if (k === 'ArrowLeft' || k === 'a'){ if (dir.x !== 1)  nextDir = { x: -1, y: 0  }; }
+        if (k === 'ArrowRight' || k === 'd'){ if (dir.x !== -1) nextDir = { x: 1,  y: 0  }; }
+      });
+
+      // touch controls (D‑pad)
+      const upBtn    = document.querySelector('.snake-up');
+      const downBtn  = document.querySelector('.snake-down');
+      const leftBtn  = document.querySelector('.snake-left');
+      const rightBtn = document.querySelector('.snake-right');
+
+      if (upBtn)    upBtn.addEventListener('click',   () => { if (dir.y !== 1)  nextDir = { x: 0,  y: -1 }; });
+      if (downBtn)  downBtn.addEventListener('click', () => { if (dir.y !== -1) nextDir = { x: 0,  y: 1  }; });
+      if (leftBtn)  leftBtn.addEventListener('click', () => { if (dir.x !== 1)  nextDir = { x: -1, y: 0  }; });
+      if (rightBtn) rightBtn.addEventListener('click',() => { if (dir.x !== -1) nextDir = { x: 1,  y: 0  }; });
+
+      // buttons
+      startBtn.addEventListener('click', startGame);
+      if (restartBtn) restartBtn.addEventListener('click', restartGame);
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          best = 0;
+          saveBest();
+          bestEl.textContent = 'Legjobb: 0';
+        });
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      // init
+      init();
+      resizeCanvas();
     })();
 
     // Snake Modal Handlers
@@ -982,7 +941,7 @@
         paused = false;
         startBtn.textContent = '▶ Folytatás';
         if (pauseBtn) pauseBtn.textContent = '⏸ Szünet';
-        gameLoop = setInterval(update, 100);
+        gameLoop = setInterval(update, 170);
       }
 
       function togglePause() {
