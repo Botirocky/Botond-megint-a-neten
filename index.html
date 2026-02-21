@@ -3,7 +3,9 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>botondmegintaneten.hu</title>
     <meta name="description" content="Botond megint a neten – etikus hekk, kódok, tippek és elérhetőség.">
     <meta property="og:title" content="botondmegintaneten.hu">
@@ -32,6 +34,7 @@
                     <li><a href="#content">Tartalom</a></li>
                     <li><a href="#gallery">Galéria</a></li>
                     <li><a href="#" class="snake-menu-link">Snake</a></li>
+                    <li><a href="#tic-tac-toe">Amőba</a></li>
                     <li><a href="#contact">Elérhetőség</a></li>
                 </ul>
             </nav>
@@ -46,10 +49,11 @@
           </div>
           <div class="typing" aria-hidden="true">Itt lesz majd: <span id="typingTarget"></span><span class="cursor"></span></div>
         </div>
+        </div>
         </section>
         <section id="about">
             <h2>Rólam</h2>
-            <p>Üdv, Botond vagyok. Szeretném ha ez az oldal egy jó gyakorlás lenne nekem és azon más embereknek aki hozzám hasonlóan érdeklődnek a kódolás és tech iránt.
+            <p>Üdv, Botond vagyok. Szeretném ha ez az oldal egy jó gyakorlás lenne nekem és azon más embereknek akik hozzám hasonlóan érdeklődnek a kódolás és tech iránt.
             Minden projektem megtalálod <a href="https://github.com/Botirocky" target="_blank" rel="noopener">Github-on.</a></p>
             <p>A Linktree-men megtalálod a további elérhetőségeim <a href="https://linktr.ee/Botirocky?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnWQNl2-lInl7A3nWM9S7Xys6Ys8_gdXIOU9fBeKkBRAvNe1Qx08PTWVAqwew_aem_MPR7IXLgXqppxHNUVWi5Sg" target="_blank" rel="noopener">itt.</a></p>
         </section>
@@ -67,7 +71,7 @@
         </template>
         </section>
         <section id="gallery">
-            <h2>Péladképeim</h2>
+            <h2>Példaképeim</h2>
             <div class="gallery" id="galleryGrid">
                 <!-- Place your images under html-ek/ or add external URLs below -->
                 <img loading="lazy" src="https://cerebrodigital.net/wp-content/uploads/2025/09/portada-12.jpg" alt="Linus Torvalds" class="glight">
@@ -118,6 +122,24 @@
                 <!-- Download Button -->
                 <button id="inlineSnakeDownload" class="button" type="button" style="width:100%; padding:12px;">📥 Letöltés (Logfile)</button>
               </div>
+            </div>
+        </section>
+        <section id="tic-tac-toe" class="revealed" role="region" aria-labelledby="ttt-title" style="--d: 400ms;">
+            <h2 id="ttt-title">Amőba (Tic-Tac-Toe)</h2>
+            <div class="ttt-wrap">
+                <p class="ttt-status" id="tttStatus" aria-live="polite">X következik</p>
+                <div class="ttt-board" id="tttBoard" role="grid" aria-label="Amőba tábla 3x3">
+                    <button type="button" class="ttt-cell" data-i="0" aria-label="Mező 1"></button>
+                    <button type="button" class="ttt-cell" data-i="1" aria-label="Mező 2"></button>
+                    <button type="button" class="ttt-cell" data-i="2" aria-label="Mező 3"></button>
+                    <button type="button" class="ttt-cell" data-i="3" aria-label="Mező 4"></button>
+                    <button type="button" class="ttt-cell" data-i="4" aria-label="Mező 5"></button>
+                    <button type="button" class="ttt-cell" data-i="5" aria-label="Mező 6"></button>
+                    <button type="button" class="ttt-cell" data-i="6" aria-label="Mező 7"></button>
+                    <button type="button" class="ttt-cell" data-i="7" aria-label="Mező 8"></button>
+                    <button type="button" class="ttt-cell" data-i="8" aria-label="Mező 9"></button>
+                </div>
+                <button type="button" id="tttReset" class="button">Új játék</button>
             </div>
         </section>
     </main>
@@ -411,7 +433,7 @@
       });
       // touch support
       gallery.addEventListener('touchstart', (e)=>{ startX = e.touches[0].pageX - gallery.offsetLeft; scrollLeft = gallery.scrollLeft; });
-      gallery.addEventListener('touchmove', (e)=>{ const x = e.touches[0].pageX - gallery.offsetLeft; const walk = (x - startX) * 1.2; gallery.scrollLeft = scrollLeft - walk; });
+      gallery.addEventListener('touchmove', (e)=>{ e.preventDefault(); const x = e.touches[0].pageX - gallery.offsetLeft; const walk = (x - startX) * 1.2; gallery.scrollLeft = scrollLeft - walk; }, { passive: false });
     })();
 
     // Header parallax on mousemove
@@ -474,7 +496,7 @@
       if (e.key === 'g') { scrollWithOffset('#gallery'); }
     });
 
-    // Snake game logic (simplified & robust)
+    // Snake game logic (simplified & robust) + leaderboard
     (function snakeGame(){
       const startBtn   = document.getElementById('startSnake');
       const restartBtn = document.getElementById('snakeRestart');
@@ -483,6 +505,12 @@
       const scoreEl    = document.getElementById('snakeScore');
       const bestEl     = document.getElementById('snakeBest');
       const statusEl   = document.getElementById('snakeStatus');
+      const boardEl    = document.getElementById('snakeBoard');
+      const clearBoardBtn = document.getElementById('snakeClearBoard');
+      const entryForm  = document.getElementById('snakeEntryForm');
+      const nameInput  = document.getElementById('snakeName');
+      const saveEntryBtn   = document.getElementById('snakeSaveEntry');
+      const cancelEntryBtn = document.getElementById('snakeCancelEntry');
 
       if (!canvas || !startBtn || !scoreEl || !bestEl || !statusEl) {
         return;
@@ -502,6 +530,8 @@
       let best    = 0;
       let loopId  = null;
       let running = false;
+      let leaderboard = [];
+      let pendingScore = null;
 
       // Best score persistence
       (function loadBest(){
@@ -515,10 +545,66 @@
         } catch(e){}
       })();
 
+      // Leaderboard persistence (top 5)
+      (function loadLeaderboard(){
+        try {
+          const raw = localStorage.getItem('snake_board_v1');
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            leaderboard = parsed
+              .filter(e => typeof e.score === 'number')
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 5);
+            renderLeaderboard();
+          }
+        } catch(e){}
+      })();
+
       function saveBest(){
         try {
           localStorage.setItem('snake_best_v2', JSON.stringify({ score: best }));
         } catch(e){}
+      }
+
+      function saveLeaderboard(){
+        try {
+          localStorage.setItem('snake_board_v1', JSON.stringify(leaderboard));
+        } catch(e){}
+      }
+
+      function renderLeaderboard(){
+        if (!boardEl) return;
+        boardEl.innerHTML = '';
+        leaderboard.forEach(entry => {
+          const li = document.createElement('li');
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'name';
+          nameSpan.textContent = entry.name || 'Ismeretlen';
+          const metaSpan = document.createElement('span');
+          metaSpan.className = 'meta';
+          const date = entry.date ? ' · ' + entry.date : '';
+          metaSpan.textContent = `${entry.score} pont${date}`;
+          li.appendChild(nameSpan);
+          li.appendChild(metaSpan);
+          boardEl.appendChild(li);
+        });
+      }
+
+      function showEntryForm(finalScore){
+        if (!entryForm || !nameInput) return;
+        pendingScore = finalScore;
+        entryForm.classList.remove('hidden');
+        entryForm.setAttribute('aria-hidden', 'false');
+        if (!nameInput.value) nameInput.value = '';
+        nameInput.focus();
+      }
+
+      function hideEntryForm(){
+        if (!entryForm) return;
+        entryForm.classList.add('hidden');
+        entryForm.setAttribute('aria-hidden', 'true');
+        pendingScore = null;
       }
 
       function updateScore(){
@@ -668,6 +754,9 @@
         loopId = null;
         statusEl.textContent = 'Vesztettél!';
         statusEl.classList.add('snake-lose');
+        if (score > 0) {
+          showEntryForm(score);
+        }
       }
 
       function startGame(){
@@ -716,6 +805,41 @@
         });
       }
 
+      if (saveEntryBtn) {
+        saveEntryBtn.addEventListener('click', () => {
+          if (pendingScore == null) {
+            hideEntryForm();
+            return;
+          }
+          const name = (nameInput && nameInput.value.trim()) || 'Ismeretlen';
+          const entry = {
+            name,
+            score: pendingScore,
+            date: new Date().toLocaleString('hu-HU')
+          };
+          leaderboard.push(entry);
+          leaderboard.sort((a, b) => b.score - a.score);
+          leaderboard = leaderboard.slice(0, 5);
+          saveLeaderboard();
+          renderLeaderboard();
+          hideEntryForm();
+        });
+      }
+
+      if (cancelEntryBtn) {
+        cancelEntryBtn.addEventListener('click', () => {
+          hideEntryForm();
+        });
+      }
+
+      if (clearBoardBtn) {
+        clearBoardBtn.addEventListener('click', () => {
+          leaderboard = [];
+          saveLeaderboard();
+          if (boardEl) boardEl.innerHTML = '';
+        });
+      }
+
       window.addEventListener('resize', resizeCanvas);
 
       // init
@@ -734,6 +858,15 @@
         if (!modal) return;
         modal.classList.remove('hidden');
         modal.setAttribute('aria-hidden', 'false');
+        // Auto-start the Snake game and ensure the canvas is properly sized
+        try {
+          const startBtn = document.getElementById('startSnake');
+          if (startBtn) {
+            startBtn.click();
+          }
+          // Force a resize so the Snake canvas recalculates its dimensions
+          window.dispatchEvent(new Event('resize'));
+        } catch (e) {}
       }
 
       function closeModal() {
@@ -784,10 +917,18 @@
 
       const ctx = canvas.getContext('2d');
       const GRID_SIZE = 6;
-      const TILE_SIZE = canvas.width / GRID_SIZE;
+      let TILE_SIZE = 400 / GRID_SIZE;
+      
+      function randomFreeCell(snakeArr) {
+        let pos;
+        do {
+          pos = { x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE) };
+        } while (snakeArr.some(s => s.x === pos.x && s.y === pos.y));
+        return pos;
+      }
       
       let snake = [{x: 3, y: 3}, {x: 2, y: 3}, {x: 1, y: 3}, {x: 0, y: 3}];
-      let food = {x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE)};
+      let food = randomFreeCell(snake);
       let direction = {x: 1, y: 0};
       let nextDirection = {x: 1, y: 0};
       let score = 0;
@@ -916,7 +1057,7 @@
         if (head.x === food.x && head.y === food.y) {
           score++;
           if (scoreDisplay) scoreDisplay.textContent = score;
-          food = {x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE)};
+          food = randomFreeCell(snake);
         } else {
           snake.pop();
         }
@@ -955,7 +1096,7 @@
       function reset() {
         clearInterval(gameLoop);
         snake = [{x: 3, y: 3}, {x: 2, y: 3}, {x: 1, y: 3}, {x: 0, y: 3}];
-        food = {x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE)};
+        food = randomFreeCell(snake);
         direction = {x: 1, y: 0};
         nextDirection = {x: 1, y: 0};
         score = 0;
@@ -1025,6 +1166,84 @@
       // Initialize
       loadBest();
       draw();
+    })();
+
+    // Tic-Tac-Toe (Amőba)
+    (function ticTacToe() {
+      const boardEl = document.getElementById('tttBoard');
+      const statusEl = document.getElementById('tttStatus');
+      const resetBtn = document.getElementById('tttReset');
+      if (!boardEl || !statusEl || !resetBtn) return;
+
+      const cells = Array.from(boardEl.querySelectorAll('.ttt-cell'));
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]
+      ];
+      let board = ['','','','','','','','',''];
+      let turn = 'X';
+      let over = false;
+
+      function checkWin() {
+        for (const [a, b, c] of wins) {
+          if (board[a] && board[a] === board[b] && board[b] === board[c])
+            return { win: true, who: board[a], line: [a, b, c] };
+        }
+        if (board.every(c => c)) return { draw: true };
+        return null;
+      }
+
+      function setStatus(msg) {
+        statusEl.textContent = msg;
+      }
+
+      function render() {
+        cells.forEach((cell, i) => {
+          cell.textContent = board[i];
+          cell.classList.remove('x', 'o', 'win');
+          if (board[i]) cell.classList.add(board[i].toLowerCase());
+        });
+      }
+
+      function highlightWin(line) {
+        if (line) line.forEach(i => cells[i].classList.add('win'));
+      }
+
+      function handleClick(e) {
+        const cell = e.target;
+        if (!cell.classList.contains('ttt-cell')) return;
+        if (over) return;
+        const i = parseInt(cell.getAttribute('data-i'), 10);
+        if (board[i]) return;
+
+        board[i] = turn;
+        render();
+        const result = checkWin();
+
+        if (result) {
+          over = true;
+          if (result.win) {
+            setStatus(result.who + ' nyert!');
+            highlightWin(result.line);
+          } else {
+            setStatus('Döntetlen!');
+          }
+          return;
+        }
+        turn = turn === 'X' ? 'O' : 'X';
+        setStatus(turn + ' következik');
+      }
+
+      function reset() {
+        board = ['','','','','','','','',''];
+        turn = 'X';
+        over = false;
+        setStatus('X következik');
+        render();
+      }
+
+      boardEl.addEventListener('click', handleClick);
+      resetBtn.addEventListener('click', reset);
+      render();
     })();
     </script>
 </body>

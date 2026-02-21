@@ -50,6 +50,9 @@ body {
   color: var(--text);
   background: var(--bg);
   line-height: 1.6;
+  /* Safe area for notched phones */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 header {
@@ -388,15 +391,21 @@ section.revealed {
 }
 .lightbox .close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  height: 40px;
-  width: 40px;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  min-height: 44px;
+  min-width: 44px;
+  height: 44px;
+  width: 44px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
 }
 
 .controls {
@@ -409,6 +418,8 @@ section.revealed {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
   height: 36px;
   width: 36px;
   border-radius: 10px;
@@ -416,6 +427,7 @@ section.revealed {
   background: transparent;
   color: var(--text);
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .icon-btn:hover { background: var(--border); }
@@ -443,8 +455,9 @@ section.revealed {
 @media (max-width: 720px) {
   nav ul {
     position: fixed;
-    top: 56px;
-    right: 12px;
+    top: calc(56px + env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    left: auto;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -453,15 +466,91 @@ section.revealed {
     gap: 4px;
     box-shadow: 0 10px 30px rgba(0,0,0,.15);
     display: none;
+    z-index: 1001;
   }
   nav ul.open { display: flex; }
   .hamburger { display: inline-flex; }
+  nav a { padding: 12px 14px; min-height: 44px; display: flex; align-items: center; }
+}
+
+/* Phone-first layout */
+@media (max-width: 600px) {
+  .header-inner { padding: 10px 12px; gap: 8px; }
+  h1 { font-size: 16px; }
+  .logo-wave span { font-size: 0.9em; }
+  .container { padding: 16px 12px 48px; }
+  section { padding: 16px 12px; margin-bottom: 14px; }
+  section h2 { font-size: 1.25rem; margin-top: 0; }
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px;
+  }
+  .hero .typing { font-size: 16px; }
+  .hero h2 { font-size: 1.2rem; }
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .card { padding: 12px; }
+  .gallery {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 10px;
+    padding-bottom: 8px;
+    margin: 0 -12px;
+  }
+  .gallery img {
+    flex: 0 0 min(85vw, 200px);
+    width: min(85vw, 200px);
+    height: 140px;
+    scroll-snap-align: start;
+  }
+  .button, .icon-btn { min-height: 44px; min-width: 44px; touch-action: manipulation; }
+  #toTop {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  footer { padding: 16px 12px; font-size: 14px; }
+}
+
+/* Inline Snake section on phone */
+@media (max-width: 600px) {
+  section#snake-game { padding: 12px; margin-bottom: 14px; }
+  section#snake-game h2 { font-size: 1.2rem; }
+  section#snake-game [style*="display:flex"][style*="justify-content:center"] { max-width: 100%; }
+  #inlineSnakeCanvas {
+    max-width: 100%;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+  }
+  section#snake-game .button { min-width: 0; flex: 1 1 33%; }
+}
+
+/* Tic-Tac-Toe on phone */
+@media (max-width: 600px) {
+  .ttt-wrap { max-width: 100%; padding: 0 8px; }
+  .ttt-board { max-width: min(100%, 260px); padding: 8px; gap: 4px; }
+  .ttt-cell { font-size: clamp(24px, 10vw, 36px); }
+  .ttt-wrap .button { min-width: 100%; min-height: 44px; }
+}
+
+/* Prevent iOS zoom on focus (inputs ≥16px) */
+input, select, textarea { font-size: 16px; }
+@media (max-width: 600px) {
+  input, select, textarea { font-size: max(16px, 1rem); }
 }
 
 footer {
   text-align: center;
   color: var(--muted);
   padding: 24px 16px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
 }
 
@@ -501,6 +590,63 @@ footer {
 .button:hover { background: var(--border); }
 .button:active { transform: translateY(1px); }
 .button:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Tic-Tac-Toe (Amőba) */
+.ttt-wrap {
+  max-width: 320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.ttt-status {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 0;
+}
+.ttt-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 280px;
+  background: var(--surface);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.ttt-cell {
+  aspect-ratio: 1;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: clamp(28px, 8vw, 42px);
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.ttt-cell:hover:not(.x):not(.o) {
+  background: var(--surface);
+  border-color: var(--primary);
+}
+.ttt-cell:active:not(.x):not(.o) { transform: scale(0.96); }
+.ttt-cell.x { color: var(--primary); }
+.ttt-cell.o { color: #e11d48; }
+.ttt-cell.win {
+  background: rgba(31, 111, 235, 0.15);
+  border-color: var(--primary);
+  animation: pop .3s ease;
+}
+:root.dark .ttt-cell.o { color: #f87171; }
+.ttt-wrap .button { min-width: 120px; }
+
 /* Snake Modal */
 .snake-modal {
   position: fixed;
@@ -538,10 +684,11 @@ footer {
 
 @media (max-width: 480px) {
   .snake-modal-content {
-    width: 95%;
-    max-height: 98vh;
+    width: calc(100% - 16px);
     max-width: 100%;
-    border-radius: 8px;
+    max-height: calc(100vh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    margin: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom));
+    border-radius: 12px;
   }
 }
 .snake-modal-header {
