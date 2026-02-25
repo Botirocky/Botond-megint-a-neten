@@ -25,6 +25,7 @@
         <h1 class="logo-wave"><span>b</span><span>o</span><span>t</span><span>o</span><span>n</span><span>d</span><span>m</span><span>e</span><span>g</span><span>i</span><span>n</span><span>t</span><span>a</span><span>n</span><span>e</span><span>t</span><span>e</span><span>n</span><span>.</span><span>h</span><span>u</span></h1>
             <div class="controls">
                 <button id="themeToggle" class="icon-btn" aria-label="Téma váltása" title="Világos/Sötét mód">🌙</button>
+                <button id="langToggle" class="icon-btn" aria-label="Nyelv váltása" title="Magyar / English">EN</button>
                 <button id="hamburger" class="icon-btn hamburger" aria-label="Menü" title="Menü">☰</button>
             </div>
             <nav>
@@ -224,6 +225,201 @@
     // Set initial icon
     themeBtn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
 
+    // Language toggle (HU / EN)
+    const langBtn = document.getElementById('langToggle');
+    const translations = {
+      hu: {
+        navHome: 'Főoldal',
+        navAbout: 'Rólam',
+        navContent: 'Tartalom',
+        navGallery: 'Galéria',
+        navSnake: 'Snake',
+        navTtt: 'Amőba',
+        navContact: 'Elérhetőség',
+        homeTitle: 'Főoldal',
+        homeIntro: 'Az oldal fejlesztés alatt. Kérem az esetleges hibákat jelezze az alábbi e‑mail címen.',
+        aboutTitle: 'Rólam',
+        aboutP1: `Üdv, Botond vagyok. Szeretném ha ez az oldal egy jó gyakorlás lenne nekem és azon más embereknek akik hozzám hasonlóan érdeklődnek a kódolás és tech iránt. Minden projektem megtalálod <a href="https://github.com/Botirocky" target="_blank" rel="noopener">Github-on.</a>`,
+        aboutP2: `A Linktree-men megtalálod a további elérhetőségeim <a href="https://linktr.ee/Botirocky?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnWQNl2-lInl7A3nWM9S7Xys6Ys8_gdXIOU9fBeKkBRAvNe1Qx08PTWVAqwew_aem_MPR7IXLgXqppxHNUVWi5Sg" target="_blank" rel="noopener">itt.</a>`,
+        contentTitle: 'Tartalom',
+        galleryTitle: 'Példaképeim',
+        contactTitle: 'Elérhetőség',
+        copyEmail: 'Másolás',
+        snakeInlineTitle: 'Játssz Snake-et',
+        inlineStart: '▶ Start',
+        inlinePause: '⏸ Szünet',
+        inlineReset: '🔄 Újra',
+        inlinePointsLabel: 'PONT',
+        inlineBestLabel: 'LEGJOBB',
+        inlineNamePlaceholder: '💾 Add meg a neved',
+        inlineDownload: '📥 Letöltés (Logfile)',
+        tttTitle: 'Amőba (Tic-Tac-Toe)',
+        tttStatusInitial: 'X következik',
+        tttReset: 'Új játék',
+        snakeModalTitle: 'Snake Játék',
+        snakeBoardTitle: 'Ranglista',
+        snakeStart: 'Start',
+        snakeRestart: 'Újra',
+        snakeResetBest: 'Reset Legjobb',
+        snakeClearBoard: 'Töröl ranglistát',
+        snakeEntryLabel: 'Neved a ranglistához:',
+        snakeSaveEntry: '✓ Mentés',
+        snakeCancelEntry: '✕ Mégse'
+      },
+      en: {
+        navHome: 'Home',
+        navAbout: 'About',
+        navContent: 'Content',
+        navGallery: 'Gallery',
+        navSnake: 'Snake',
+        navTtt: 'Tic-Tac-Toe',
+        navContact: 'Contact',
+        homeTitle: 'Home',
+        homeIntro: 'This site is under development. Please report any issues to the e‑mail address below.',
+        aboutTitle: 'About me',
+        aboutP1: `Hi, I’m Botond. I want this site to be good practice for me and for other people who, like me, are interested in coding and tech. You can find all my projects on <a href="https://github.com/Botirocky" target="_blank" rel="noopener">GitHub</a>.`,
+        aboutP2: `On my Linktree you can find my other contact links <a href="https://linktr.ee/Botirocky?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnWQNl2-lInl7A3nWM9S7Xys6Ys8_gdXIOU9fBeKkBRAvNe1Qx08PTWVAqwew_aem_MPR7IXLgXqppxHNUVWi5Sg" target="_blank" rel="noopener">here.</a>`,
+        contentTitle: 'Content',
+        galleryTitle: 'My role models',
+        contactTitle: 'Contact',
+        copyEmail: 'Copy',
+        snakeInlineTitle: 'Play Snake',
+        inlineStart: '▶ Start',
+        inlinePause: '⏸ Pause',
+        inlineReset: '🔄 Restart',
+        inlinePointsLabel: 'SCORE',
+        inlineBestLabel: 'BEST',
+        inlineNamePlaceholder: '💾 Enter your name',
+        inlineDownload: '📥 Download (log file)',
+        tttTitle: 'Tic-Tac-Toe',
+        tttStatusInitial: 'X to move',
+        tttReset: 'New game',
+        snakeModalTitle: 'Snake Game',
+        snakeBoardTitle: 'Leaderboard',
+        snakeStart: 'Start',
+        snakeRestart: 'Restart',
+        snakeResetBest: 'Reset best',
+        snakeClearBoard: 'Clear leaderboard',
+        snakeEntryLabel: 'Your name for the leaderboard:',
+        snakeSaveEntry: '✓ Save',
+        snakeCancelEntry: '✕ Cancel'
+      }
+    };
+
+    let currentLang = (localStorage.getItem('siteLang') === 'en') ? 'en' : 'hu';
+
+    function applyLang(lang) {
+      const langCode = (lang === 'en') ? 'en' : 'hu';
+      const t = translations[langCode];
+
+      document.documentElement.setAttribute('lang', langCode === 'en' ? 'en' : 'hu');
+      if (langBtn) {
+        langBtn.textContent = langCode === 'en' ? 'HU' : 'EN';
+      }
+
+      // Nav
+      const navHome = document.querySelector('a[href="#home"]');
+      const navAbout = document.querySelector('a[href="#about"]');
+      const navContent = document.querySelector('a[href="#content"]');
+      const navGallery = document.querySelector('a[href="#gallery"]');
+      const navSnake = document.querySelector('.snake-menu-link');
+      const navTtt = document.querySelector('a[href="#tic-tac-toe"]');
+      const navContact = document.querySelector('a[href="#contact"]');
+      if (navHome) navHome.textContent = t.navHome;
+      if (navAbout) navAbout.textContent = t.navAbout;
+      if (navContent) navContent.textContent = t.navContent;
+      if (navGallery) navGallery.textContent = t.navGallery;
+      if (navSnake) navSnake.textContent = t.navSnake;
+      if (navTtt) navTtt.textContent = t.navTtt;
+      if (navContact) navContact.textContent = t.navContact;
+
+      // Home
+      const homeTitle = document.querySelector('#home h2');
+      const homeIntro = document.querySelector('#home p.muted');
+      if (homeTitle) homeTitle.textContent = t.homeTitle;
+      if (homeIntro) homeIntro.textContent = t.homeIntro;
+
+      // About
+      const aboutTitle = document.querySelector('#about h2');
+      const aboutPs = document.querySelectorAll('#about p');
+      if (aboutTitle) aboutTitle.textContent = t.aboutTitle;
+      if (aboutPs[0]) aboutPs[0].innerHTML = t.aboutP1;
+      if (aboutPs[1]) aboutPs[1].innerHTML = t.aboutP2;
+
+      // Section titles
+      const contentTitle = document.querySelector('#content h2');
+      const galleryTitle = document.querySelector('#gallery h2');
+      const contactTitle = document.querySelector('#contact h2');
+      if (contentTitle) contentTitle.textContent = t.contentTitle;
+      if (galleryTitle) galleryTitle.textContent = t.galleryTitle;
+      if (contactTitle) contactTitle.textContent = t.contactTitle;
+
+      // Copy email button
+      const copyBtn = document.getElementById('copyEmail');
+      if (copyBtn) copyBtn.textContent = t.copyEmail;
+
+      // Inline Snake section
+      const snakeInlineTitle = document.querySelector('#snake-game h2');
+      if (snakeInlineTitle) snakeInlineTitle.textContent = t.snakeInlineTitle;
+      const inlineStart = document.getElementById('inlineSnakeStart');
+      const inlinePause = document.getElementById('inlineSnakePause');
+      const inlineReset = document.getElementById('inlineSnakeReset');
+      const inlineName = document.getElementById('inlineSnakeName');
+      const inlineDownload = document.getElementById('inlineSnakeDownload');
+      if (inlineStart) inlineStart.textContent = t.inlineStart;
+      if (inlinePause) inlinePause.textContent = t.inlinePause;
+      if (inlineReset) inlineReset.textContent = t.inlineReset;
+      if (inlineName) inlineName.placeholder = t.inlineNamePlaceholder;
+      if (inlineDownload) inlineDownload.textContent = t.inlineDownload;
+
+      // Inline Snake labels PONT / LEGJOBB
+      const scoreLabel = document.querySelector('#inlineSnakeScore')?.parentElement?.previousElementSibling;
+      const bestLabel = document.querySelector('#inlineSnakeBest')?.parentElement?.previousElementSibling;
+      if (scoreLabel) scoreLabel.textContent = t.inlinePointsLabel;
+      if (bestLabel) bestLabel.textContent = t.inlineBestLabel;
+
+      // Tic-Tac-Toe
+      const tttTitle = document.getElementById('ttt-title');
+      const tttStatus = document.getElementById('tttStatus');
+      const tttReset = document.getElementById('tttReset');
+      if (tttTitle) tttTitle.textContent = t.tttTitle;
+      if (tttStatus) tttStatus.textContent = t.tttStatusInitial;
+      if (tttReset) tttReset.textContent = t.tttReset;
+
+      // Snake modal texts
+      const snakeModalTitle = document.querySelector('#snakeModal h2');
+      const snakeHeaderLabel = document.querySelector('.snake-header strong');
+      const startSnakeBtn = document.getElementById('startSnake');
+      const snakeRestartBtn = document.getElementById('snakeRestart');
+      const snakeResetBestBtn = document.getElementById('snakeResetBest');
+      const snakeBoardTitle = document.querySelector('.snake-leaderboard h4');
+      const snakeClearBoardBtn = document.getElementById('snakeClearBoard');
+      const snakeEntryLabel = document.querySelector('#snakeEntryForm label[for="snakeName"]');
+      const snakeSaveEntryBtn = document.getElementById('snakeSaveEntry');
+      const snakeCancelEntryBtn = document.getElementById('snakeCancelEntry');
+
+      if (snakeModalTitle) snakeModalTitle.textContent = t.snakeModalTitle;
+      if (snakeHeaderLabel) snakeHeaderLabel.textContent = t.snakeInlineTitle;
+      if (startSnakeBtn) startSnakeBtn.textContent = t.snakeStart;
+      if (snakeRestartBtn) snakeRestartBtn.textContent = t.snakeRestart;
+      if (snakeResetBestBtn) snakeResetBestBtn.textContent = t.snakeResetBest;
+      if (snakeBoardTitle) snakeBoardTitle.textContent = t.snakeBoardTitle;
+      if (snakeClearBoardBtn) snakeClearBoardBtn.textContent = t.snakeClearBoard;
+      if (snakeEntryLabel) snakeEntryLabel.textContent = t.snakeEntryLabel;
+      if (snakeSaveEntryBtn) snakeSaveEntryBtn.textContent = t.snakeSaveEntry;
+      if (snakeCancelEntryBtn) snakeCancelEntryBtn.textContent = t.snakeCancelEntry;
+    }
+
+    applyLang(currentLang);
+
+    if (langBtn) {
+      langBtn.addEventListener('click', () => {
+        currentLang = currentLang === 'en' ? 'hu' : 'en';
+        localStorage.setItem('siteLang', currentLang);
+        applyLang(currentLang);
+      });
+    }
+
     // Mobile nav toggle
     const hamburger = document.getElementById('hamburger');
     const mainNav = document.getElementById('mainNav');
@@ -380,9 +576,22 @@
     (function typingEffect(){
       const el = document.getElementById('typingTarget');
       if (!el) return;
-      const phrases = ['projektek', 'érdekességek', 'kódminták', 'mini demo-k', 'blog bejegyzések'];
+      const allPhrases = {
+        hu: ['projektek', 'érdekességek', 'kódminták', 'mini demo-k', 'blog bejegyzések'],
+        en: ['projects', 'interesting stuff', 'code samples', 'mini demos', 'blog posts']
+      };
+      let langCode = document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'hu';
+      let phrases = allPhrases[langCode];
       let pi = 0, ci = 0, deleting = false;
       function step(){
+        const docLang = document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'hu';
+        if (docLang !== langCode) {
+          langCode = docLang;
+          phrases = allPhrases[langCode] || allPhrases.hu;
+          pi = 0;
+          ci = 0;
+          deleting = false;
+        }
         const cur = phrases[pi];
         if (!deleting) {
           el.textContent = cur.slice(0, ci+1);
