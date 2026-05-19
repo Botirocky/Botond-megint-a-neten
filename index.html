@@ -1546,5 +1546,295 @@
       render();
     })();
     </script>
+
+    <script>
+    /* ── EXTRA EFFECTS ──────────────────────────────────────────────────── */
+
+    // 1. Cursor spotlight: update CSS variables --cx / --cy
+    (function cursorSpotlight() {
+      let raf = null;
+      let px = -1000, py = -1000;
+      document.addEventListener('mousemove', (e) => {
+        px = e.clientX; py = e.clientY;
+        if (!raf) raf = requestAnimationFrame(() => {
+          document.documentElement.style.setProperty('--cx', px + 'px');
+          document.documentElement.style.setProperty('--cy', py + 'px');
+          raf = null;
+        });
+      });
+      document.addEventListener('mouseleave', () => {
+        document.documentElement.style.setProperty('--cx', '-1000px');
+        document.documentElement.style.setProperty('--cy', '-1000px');
+      });
+    })();
+
+    // 2. Particle / constellation background
+    (function initParticles() {
+      const canvas = document.createElement('canvas');
+      canvas.setAttribute('aria-hidden', 'true');
+      canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+      document.body.prepend(canvas);
+      const ctx = canvas.getContext('2d');
+
+      const N = 32, LINK = 128;
+      let W, H, pts = [];
+
+      function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
+
+      for (let i = 0; i < N; i++) {
+        pts.push({
+          x: Math.random() * (W || 1200),
+          y: Math.random() * (H || 800),
+          vx: (Math.random() - .5) * .38,
+          vy: (Math.random() - .5) * .38,
+          r: 1.3 + Math.random() * 1.6
+        });
+      }
+
+      let raf;
+      function frame() {
+        ctx.clearRect(0, 0, W, H);
+        const dark = document.documentElement.classList.contains('dark');
+        const rgb = dark ? '138,180,248' : '31,111,235';
+
+        for (let i = 0; i < N; i++) {
+          const p = pts[i];
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0) p.x = W; else if (p.x > W) p.x = 0;
+          if (p.y < 0) p.y = H; else if (p.y > H) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${rgb},.55)`;
+          ctx.fill();
+
+          for (let j = i + 1; j < N; j++) {
+            const q = pts[j];
+            const dx = p.x - q.x, dy = p.y - q.y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < LINK) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(q.x, q.y);
+              ctx.strokeStyle = `rgba(${rgb},${.18 * (1 - d / LINK)})`;
+              ctx.lineWidth = .7;
+              ctx.stroke();
+            }
+          }
+        }
+        raf = requestAnimationFrame(frame);
+      }
+      frame();
+    })();
+
+    // 3. Logo glitch effect
+    (function glitchLogo() {
+      const logo = document.querySelector('.logo-wave');
+      if (!logo) return;
+      logo.setAttribute('data-text', logo.textContent);
+      function trigger() {
+        logo.classList.add('glitching');
+        setTimeout(() => logo.classList.remove('glitching'), 420);
+        setTimeout(trigger, 4000 + Math.random() * 7000);
+      }
+      setTimeout(trigger, 2000 + Math.random() * 3000);
+    })();
+
+    // 4. Magnetic button effect
+    (function magneticBtns() {
+      function attach(el) {
+        if (el._magnet) return;
+        el._magnet = true;
+        const MAX = 0.24;
+        el.addEventListener('mousemove', (e) => {
+          const r = el.getBoundingClientRect();
+          const dx = e.clientX - (r.left + r.width / 2);
+          const dy = e.clientY - (r.top + r.height / 2);
+          el.style.transform = `translate(${dx * MAX}px, ${dy * MAX}px)`;
+        });
+        el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      }
+      document.querySelectorAll('.button, .icon-btn').forEach(attach);
+      // Attach to dynamically injected buttons (e.g. skills, toasts)
+      new MutationObserver(muts => {
+        muts.forEach(m => m.addedNodes.forEach(n => {
+          if (n.nodeType !== 1) return;
+          if (n.matches?.('.button,.icon-btn')) attach(n);
+          n.querySelectorAll?.('.button,.icon-btn').forEach(attach);
+        }));
+      }).observe(document.body, { childList: true, subtree: true });
+    })();
+
+    // 5. Text scramble on section h2 when revealed
+    (function textScramble() {
+      const CHARS = '!<>-_\\/[]{}=+*^?#ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      function scramble(el) {
+        const orig = el.dataset.orig || el.textContent;
+        el.dataset.orig = orig;
+        el.classList.add('scrambling');
+        let frame = 0;
+        const rate = 2;
+        function tick() {
+          let out = '';
+          let done = 0;
+          for (let i = 0; i < orig.length; i++) {
+            if (orig[i] === ' ') { out += ' '; done++; continue; }
+            const revealAt = i * rate;
+            if (frame >= revealAt + rate) { out += orig[i]; done++; }
+            else { out += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+          }
+          el.textContent = out;
+          frame++;
+          if (done < orig.length) requestAnimationFrame(tick);
+          else { el.textContent = orig; el.classList.remove('scrambling'); }
+        }
+        requestAnimationFrame(tick);
+      }
+
+      const seen = new WeakSet();
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting && !seen.has(e.target)) {
+            seen.add(e.target);
+            setTimeout(() => scramble(e.target), 150);
+          }
+        });
+      }, { threshold: 0.6 });
+
+      document.querySelectorAll('section h2').forEach(h => io.observe(h));
+    })();
+
+    // 6. Custom cursor ring (smooth lerp)
+    (function customCursor() {
+      if (window.matchMedia('(pointer: coarse)').matches) return; // skip on touch
+      const ring = document.createElement('div');
+      ring.id = 'cursorRing';
+      document.body.appendChild(ring);
+
+      let tx = 0, ty = 0, cx = 0, cy = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        tx = e.clientX; ty = e.clientY;
+        if (!ring.classList.contains('active')) ring.classList.add('active');
+      });
+      document.addEventListener('mouseleave', () => ring.classList.remove('active'));
+
+      document.addEventListener('mouseover', (e) => {
+        if (e.target.closest('a,button,.card,input,textarea,select,.icon-btn'))
+          ring.classList.add('over-link');
+      });
+      document.addEventListener('mouseout', (e) => {
+        if (e.target.closest('a,button,.card,input,textarea,select,.icon-btn'))
+          ring.classList.remove('over-link');
+      });
+
+      (function lerp() {
+        cx += (tx - cx) * .14;
+        cy += (ty - cy) * .14;
+        ring.style.left = cx + 'px';
+        ring.style.top = cy + 'px';
+        requestAnimationFrame(lerp);
+      })();
+    })();
+
+    // 7. Card mouse-shine (update --mx / --my on each card)
+    (function cardShine() {
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+          card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        });
+      });
+      // Also attach to dynamic cards
+      new MutationObserver(muts => {
+        muts.forEach(m => m.addedNodes.forEach(n => {
+          if (n.nodeType !== 1) return;
+          if (n.matches?.('.card')) attachShine(n);
+          n.querySelectorAll?.('.card').forEach(attachShine);
+        }));
+      }).observe(document.body, { childList: true, subtree: true });
+      function attachShine(card) {
+        card.addEventListener('mousemove', (e) => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+          card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        });
+      }
+    })();
+
+    // 8. Hero floating orbs
+    (function heroOrbs() {
+      const hero = document.querySelector('.hero');
+      if (!hero) return;
+      const orbs = [
+        { size: 120, top: '-20px', left: '-30px', color: 'var(--primary)', dur: '9s', delay: '0s' },
+        { size: 80,  top: '60%',   left: '80%',   color: '#a78bfa',        dur: '7s', delay: '-3s' },
+        { size: 60,  top: '20%',   left: '70%',   color: '#06d6a0',        dur: '11s', delay: '-5s' },
+      ];
+      orbs.forEach(o => {
+        const el = document.createElement('div');
+        el.className = 'hero-orb';
+        el.style.cssText = `width:${o.size}px;height:${o.size}px;top:${o.top};left:${o.left};background:${o.color};--dur:${o.dur};animation-delay:${o.delay};`;
+        hero.appendChild(el);
+      });
+    })();
+
+    // 9. Global ripple on click
+    (function globalRipple() {
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('button,a,input,textarea')) return;
+        const el = document.createElement('div');
+        el.className = 'global-ripple';
+        const size = 60 + Math.random() * 60;
+        el.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:${size}px;height:${size}px;`;
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      });
+    })();
+
+    // 10. Shooting stars (random, occasional)
+    (function shootingStars() {
+      function spawn() {
+        const el = document.createElement('div');
+        el.className = 'shooting-star';
+        const dur = (.5 + Math.random() * .5).toFixed(2) + 's';
+        el.style.cssText = `
+          left:${Math.random() * 70}vw;
+          top:${Math.random() * 50}vh;
+          --dur:${dur};
+          transform: rotate(${-20 + Math.random() * -30}deg);
+        `;
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+        setTimeout(spawn, 3000 + Math.random() * 7000);
+      }
+      setTimeout(spawn, 1500);
+    })();
+
+    // 11. Skill tag stagger entrance
+    (function skillTagEntrance() {
+      const tags = document.querySelectorAll('.skill-tag');
+      if (!tags.length) return;
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            tags.forEach((tag, i) => {
+              setTimeout(() => {
+                tag.style.transform = 'translateY(12px)';
+                tag.classList.add('visible');
+                requestAnimationFrame(() => { tag.style.transform = ''; });
+              }, i * 55);
+            });
+            io.disconnect();
+          }
+        });
+      }, { threshold: 0.3 });
+      const grid = document.getElementById('skillsGrid');
+      if (grid) io.observe(grid);
+    })();
+    </script>
 </body>
 </html>

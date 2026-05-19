@@ -839,3 +839,177 @@ footer {
   border: 1px solid var(--border);
   font-weight: 600;
 }
+
+/* ── EXTRA EFFECTS ─────────────────────────────────────────────────────────── */
+
+/* Cursor spotlight (via CSS vars --cx / --cy set by JS) */
+body {
+  background:
+    radial-gradient(700px circle at var(--cx, -1000px) var(--cy, -1000px),
+      rgba(31,111,235,.055),
+      transparent 40%),
+    var(--bg);
+}
+:root.dark body {
+  background:
+    radial-gradient(700px circle at var(--cx, -1000px) var(--cy, -1000px),
+      rgba(138,180,248,.05),
+      transparent 40%),
+    var(--bg);
+}
+
+/* Custom cursor ring */
+#cursorRing {
+  position: fixed;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: width .2s, height .2s, border-color .2s, opacity .3s;
+  opacity: 0;
+  mix-blend-mode: difference;
+}
+#cursorRing.active { opacity: 1; }
+#cursorRing.over-link {
+  width: 14px;
+  height: 14px;
+  border-color: #a78bfa;
+}
+
+/* Logo glitch */
+@keyframes glitchA {
+  0%,100% { clip-path: inset(0 0 85% 0); transform: translate(-4px, 0) skewX(-3deg); color: #00ffff; }
+  33%      { clip-path: inset(35% 0 45% 0); transform: translate(4px, 0) skewX(2deg); color: #00ffff; }
+  66%      { clip-path: inset(75% 0 8% 0);  transform: translate(-2px, 0); color: #00ffff; }
+}
+@keyframes glitchB {
+  0%,100% { clip-path: inset(55% 0 25% 0); transform: translate(4px, 0); color: #ff00aa; }
+  33%      { clip-path: inset(10% 0 65% 0); transform: translate(-4px, 0); color: #ff00aa; }
+  66%      { clip-path: inset(70% 0 12% 0); transform: translate(2px, 0) skewX(-2deg); color: #ff00aa; }
+}
+.logo-wave { position: relative; }
+.logo-wave::before,
+.logo-wave::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  white-space: nowrap;
+}
+.logo-wave.glitching::before {
+  opacity: 1;
+  animation: glitchA .38s steps(2) forwards;
+}
+.logo-wave.glitching::after {
+  opacity: 1;
+  animation: glitchB .38s steps(2) forwards;
+}
+
+/* Neon pulse on inline snake canvas */
+@keyframes neonPulse {
+  0%,100% {
+    box-shadow:
+      0 0 8px rgba(77,124,255,.5),
+      0 0 20px rgba(77,124,255,.25),
+      0 12px 32px rgba(77,124,255,.25);
+  }
+  50% {
+    box-shadow:
+      0 0 22px rgba(77,124,255,.8),
+      0 0 50px rgba(77,124,255,.4),
+      0 0 80px rgba(167,139,250,.2),
+      0 12px 40px rgba(77,124,255,.4);
+  }
+}
+#inlineSnakeCanvas {
+  animation: neonPulse 2.5s ease-in-out infinite;
+}
+
+/* Animated border glow on snake & ttt sections */
+@keyframes sectionHue {
+  0%,100% { border-color: var(--primary); box-shadow: 0 10px 40px rgba(31,111,235,.12); }
+  33%      { border-color: #a78bfa;       box-shadow: 0 10px 40px rgba(167,139,250,.18); }
+  66%      { border-color: #06d6a0;       box-shadow: 0 10px 40px rgba(6,214,160,.15);  }
+}
+section#snake-game,
+section#tic-tac-toe {
+  animation: sectionHue 6s ease-in-out infinite;
+}
+
+/* Card mouse-shine overlay (updated via JS custom props) */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    100px circle at var(--mx, -200px) var(--my, -200px),
+    rgba(255,255,255,.13),
+    transparent 65%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.card:hover::after { opacity: 1; }
+
+/* Floating decorative orbs in hero */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: orbFloat var(--dur, 8s) ease-in-out infinite;
+  opacity: .18;
+  filter: blur(1px);
+}
+@keyframes orbFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-20px) scale(1.06); }
+}
+section#home { position: relative; overflow: hidden; }
+
+/* Skill tag stagger (entrance handled by JS) */
+.skill-tag { opacity: 0; }
+.skill-tag.visible { opacity: 1; transition: opacity .4s ease, transform .4s ease; }
+
+/* Section h2 scramble flicker */
+.scrambling { color: var(--primary); }
+
+/* Ripple on click anywhere */
+.global-ripple {
+  position: fixed;
+  border-radius: 50%;
+  background: rgba(31,111,235,.18);
+  pointer-events: none;
+  animation: globalRipple .7s ease-out forwards;
+  z-index: 9997;
+  transform: translate(-50%, -50%) scale(0);
+}
+@keyframes globalRipple {
+  to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
+/* Shooting stars */
+@keyframes shootingStar {
+  0%   { transform: translateX(0) translateY(0) rotate(-35deg); opacity: 1; }
+  100% { transform: translateX(400px) translateY(200px) rotate(-35deg); opacity: 0; }
+}
+.shooting-star {
+  position: fixed;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0), var(--primary), rgba(255,255,255,0));
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 0;
+  animation: shootingStar var(--dur, .7s) ease-out forwards;
+  opacity: 0;
+}
