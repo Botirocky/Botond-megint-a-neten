@@ -1,4 +1,4 @@
-const CACHE_NAME = 'botond-site-v1';
+const CACHE_NAME = 'botond-site-v2';
 const ASSETS = [
   './index.html',
   './style.css',

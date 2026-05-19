@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="scrollProgress" role="progressbar" aria-hidden="true"></div>
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
     <header>
         <div class="header-inner">
         <div class="header-bg" aria-hidden="true"></div>
@@ -36,6 +38,7 @@
                     <li><a href="#gallery">Galéria</a></li>
                     <li><a href="#" class="snake-menu-link">Snake</a></li>
                     <li><a href="#tic-tac-toe">Amőba</a></li>
+                    <li><a href="#skills">Ismeretek</a></li>
                     <li><a href="#contact">Elérhetőség</a></li>
                 </ul>
             </nav>
@@ -49,7 +52,6 @@
           <p class="muted">Az oldal fejlesztés alatt. Kérem az esetleges hibákat jelezze az alábbi e‑mail címen.</p>
           </div>
           <div class="typing" aria-hidden="true">Itt lesz majd: <span id="typingTarget"></span><span class="cursor"></span></div>
-        </div>
         </div>
         </section>
         <section id="about">
@@ -79,6 +81,10 @@
                 <img loading="lazy" src="https://i.scdn.co/image/ab67616d0000b2737c8786f3c0b85ec3a60d011b" alt="Tecak" class="glight">
                 <img loading="lazy" src="https://yt3.googleusercontent.com/ytc/AIdro_k2s1oV-ElOIvdSw3y-93nHW7TioYxFoWwF5i2um4PN-cs=s900-c-k-c0x00ffffff-no-rj" alt="Terry Davis" class="glight">
             </div>
+        </section>
+        <section id="skills">
+            <h2 id="skills-title">Ismeretek</h2>
+            <div class="skills-grid" id="skillsGrid"></div>
         </section>
         <section id="contact">
             <h2>Elérhetőség</h2>
@@ -192,9 +198,15 @@
         </form>
       </div>
     </div>
+    </div>
     <button id="toTop" aria-label="Vissza a tetejére" title="Vissza a tetejére">↑</button>
     <footer>
         <p>&copy; 2025 Buczi Botond. Minden jog fenntartva.</p>
+        <div class="footer-links">
+            <a href="https://github.com/Botirocky" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://linktr.ee/Botirocky" target="_blank" rel="noopener">Linktree</a>
+            <a href="mailto:buczibotond@gmail.com">E‑mail</a>
+        </div>
     </footer>
 
     <script>
@@ -211,6 +223,31 @@
         navigator.serviceWorker.register('./service-worker.js');
       });
     }
+
+    // Toast notification system
+    function showToast(msg, type = '', duration = 2200) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'toast' + (type ? ' ' + type : '');
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('out');
+        toast.addEventListener('animationend', () => toast.remove(), { once: true });
+      }, duration);
+    }
+
+    // Scroll progress bar
+    (function scrollProgress(){
+      const bar = document.getElementById('scrollProgress');
+      if (!bar) return;
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docH = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        bar.style.width = (docH > 0 ? (scrollTop / docH) * 100 : 0) + '%';
+      }, { passive: true });
+    })();
 
     // Dark mode toggle
     const themeBtn = document.getElementById('themeToggle');
@@ -235,6 +272,7 @@
         navGallery: 'Galéria',
         navSnake: 'Snake',
         navTtt: 'Amőba',
+        navSkills: 'Ismeretek',
         navContact: 'Elérhetőség',
         homeTitle: 'Főoldal',
         homeIntro: 'Az oldal fejlesztés alatt. Kérem az esetleges hibákat jelezze az alábbi e‑mail címen.',
@@ -245,6 +283,9 @@
         galleryTitle: 'Példaképeim',
         contactTitle: 'Elérhetőség',
         copyEmail: 'Másolás',
+        copyEmailFeedback: 'Másolva!',
+        skillsTitle: 'Ismeretek',
+        gameOver: 'Játék vége!',
         snakeInlineTitle: 'Játssz Snake-et',
         inlineStart: '▶ Start',
         inlinePause: '⏸ Szünet',
@@ -273,6 +314,7 @@
         navGallery: 'Gallery',
         navSnake: 'Snake',
         navTtt: 'Tic-Tac-Toe',
+        navSkills: 'Skills',
         navContact: 'Contact',
         homeTitle: 'Home',
         homeIntro: 'This site is under development. Please report any issues to the e‑mail address below.',
@@ -283,6 +325,9 @@
         galleryTitle: 'My role models',
         contactTitle: 'Contact',
         copyEmail: 'Copy',
+        copyEmailFeedback: 'Copied!',
+        skillsTitle: 'Skills',
+        gameOver: 'Game Over!',
         snakeInlineTitle: 'Play Snake',
         inlineStart: '▶ Start',
         inlinePause: '⏸ Pause',
@@ -324,6 +369,7 @@
       const navGallery = document.querySelector('a[href="#gallery"]');
       const navSnake = document.querySelector('.snake-menu-link');
       const navTtt = document.querySelector('a[href="#tic-tac-toe"]');
+      const navSkills = document.querySelector('a[href="#skills"]');
       const navContact = document.querySelector('a[href="#contact"]');
       if (navHome) navHome.textContent = t.navHome;
       if (navAbout) navAbout.textContent = t.navAbout;
@@ -331,6 +377,7 @@
       if (navGallery) navGallery.textContent = t.navGallery;
       if (navSnake) navSnake.textContent = t.navSnake;
       if (navTtt) navTtt.textContent = t.navTtt;
+      if (navSkills) navSkills.textContent = t.navSkills;
       if (navContact) navContact.textContent = t.navContact;
 
       // Home
@@ -349,9 +396,11 @@
       // Section titles
       const contentTitle = document.querySelector('#content h2');
       const galleryTitle = document.querySelector('#gallery h2');
+      const skillsTitle = document.getElementById('skills-title');
       const contactTitle = document.querySelector('#contact h2');
       if (contentTitle) contentTitle.textContent = t.contentTitle;
       if (galleryTitle) galleryTitle.textContent = t.galleryTitle;
+      if (skillsTitle) skillsTitle.textContent = t.skillsTitle;
       if (contactTitle) contactTitle.textContent = t.contactTitle;
 
       // Copy email button
@@ -482,12 +531,10 @@
       const email = 'buczibotond@gmail.com';
       try {
         await navigator.clipboard.writeText(email);
-        const btn = document.getElementById('copyEmail');
-        const old = btn.textContent;
-        btn.textContent = 'Másolva!';
-        setTimeout(() => btn.textContent = old, 1500);
+        const t = translations[currentLang];
+        showToast(t.copyEmailFeedback || 'Másolva!', 'success');
       } catch (e) {
-        alert('Nem sikerült másolni. E‑mail: ' + email);
+        showToast('E‑mail: ' + email);
       }
     });
 
@@ -534,6 +581,31 @@
       }
     }
     buildContentList();
+
+    // Skills section
+    (function buildSkills(){
+      const grid = document.getElementById('skillsGrid');
+      if (!grid) return;
+      const skills = [
+        { icon: '🐍', label: 'Python' },
+        { icon: '🌐', label: 'JavaScript' },
+        { icon: '🎨', label: 'HTML & CSS' },
+        { icon: '⚙️', label: 'C' },
+        { icon: '🐧', label: 'Linux' },
+        { icon: '🐙', label: 'Git & GitHub' },
+        { icon: '📡', label: 'ESP / IoT' },
+        { icon: '🐬', label: 'Flipper Zero' },
+        { icon: '🔒', label: 'Etikus hekk' },
+        { icon: '🤖', label: 'AI & API' },
+      ];
+      skills.forEach((s, i) => {
+        const tag = document.createElement('span');
+        tag.className = 'skill-tag';
+        tag.style.animationDelay = (i * 60) + 'ms';
+        tag.innerHTML = `<span class="skill-icon">${s.icon}</span>${s.label}`;
+        grid.appendChild(tag);
+      });
+    })();
 
     // Lightbox for gallery
     (function lightbox(){
@@ -1146,6 +1218,7 @@
       let running = false;
       let paused = false;
       let gameLoop = null;
+      let tickMs = 300;
 
       // Load best score from localStorage
       function loadBest() {
@@ -1267,6 +1340,9 @@
           score++;
           if (scoreDisplay) scoreDisplay.textContent = score;
           food = randomFreeCell(snake);
+          tickMs = Math.max(80, tickMs - 12);
+          clearInterval(gameLoop);
+          gameLoop = setInterval(update, tickMs);
         } else {
           snake.pop();
         }
@@ -1277,33 +1353,47 @@
       function gameOver() {
         running = false;
         clearInterval(gameLoop);
+        tickMs = 300;
         if (score > best) {
           best = score;
           const name = (nameInput && nameInput.value.trim()) || 'Ismeretlen';
           saveBest(name);
         }
-        startBtn.textContent = '▶ Start';
+        const t = translations[currentLang] || translations.hu;
+        startBtn.textContent = t.inlineStart || '▶ Start';
+        showToast(t.gameOver || 'Játék vége!');
       }
 
       function start() {
-        if (running) return;
+        if (running && !paused) return;
+        const t = translations[currentLang] || translations.hu;
+        if (paused) {
+          paused = false;
+          if (pauseBtn) pauseBtn.textContent = t.inlinePause || '⏸ Szünet';
+          gameLoop = setInterval(update, tickMs);
+          return;
+        }
         running = true;
         paused = false;
-        startBtn.textContent = '▶ Folytatás';
-        if (pauseBtn) pauseBtn.textContent = '⏸ Szünet';
-        gameLoop = setInterval(update, 170);
+        gameLoop = setInterval(update, tickMs);
       }
 
       function togglePause() {
         if (!running) return;
         paused = !paused;
-        if (pauseBtn) {
-          pauseBtn.textContent = paused ? '▶ Folytatás' : '⏸ Szünet';
+        const t = translations[currentLang] || translations.hu;
+        if (paused) {
+          clearInterval(gameLoop);
+          if (pauseBtn) pauseBtn.textContent = t.inlineStart || '▶ Start';
+        } else {
+          gameLoop = setInterval(update, tickMs);
+          if (pauseBtn) pauseBtn.textContent = t.inlinePause || '⏸ Szünet';
         }
       }
 
       function reset() {
         clearInterval(gameLoop);
+        tickMs = 300;
         snake = [{x: 3, y: 3}, {x: 2, y: 3}, {x: 1, y: 3}, {x: 0, y: 3}];
         food = randomFreeCell(snake);
         direction = {x: 1, y: 0};
@@ -1312,8 +1402,9 @@
         if (scoreDisplay) scoreDisplay.textContent = '0';
         running = false;
         paused = false;
-        startBtn.textContent = '▶ Start';
-        if (pauseBtn) pauseBtn.textContent = '⏸ Szünet';
+        const t = translations[currentLang] || translations.hu;
+        startBtn.textContent = t.inlineStart || '▶ Start';
+        if (pauseBtn) pauseBtn.textContent = t.inlinePause || '⏸ Szünet';
         draw();
       }
 
