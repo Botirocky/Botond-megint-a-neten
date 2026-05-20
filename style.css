@@ -59,8 +59,13 @@ header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: var(--surface);
+  background: rgba(245, 247, 251, 0.88);
   border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+:root.dark header {
+  background: rgba(18, 24, 38, 0.88);
 }
 
 .header-inner {
@@ -362,6 +367,12 @@ section.revealed {
   border-radius: 10px;
   cursor: zoom-in;
   border: 1px solid var(--border);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.gallery img:hover {
+  transform: scale(1.04);
+  box-shadow: 0 10px 28px rgba(0,0,0,.18);
+  border-color: var(--primary);
 }
 
 /* Drag-to-scroll gallery */
@@ -1012,4 +1023,139 @@ section#home { position: relative; overflow: hidden; }
   z-index: 0;
   animation: shootingStar var(--dur, .7s) ease-out forwards;
   opacity: 0;
+}
+
+/* ── ADDED IMPROVEMENTS ─────────────────────────────────────────────────────── */
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Section h2 typography */
+section > h2 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Gradient underline on section headings */
+section > h2::after {
+  content: '';
+  display: block;
+  margin-top: 8px;
+  height: 2px;
+  width: 48px;
+  background: linear-gradient(90deg, var(--primary), #a78bfa);
+  border-radius: 1px;
+}
+
+/* Link styling in body text */
+section p a {
+  color: var(--primary);
+  text-underline-offset: 3px;
+  text-decoration-color: transparent;
+  transition: text-decoration-color .15s ease;
+}
+section p a:hover { text-decoration-color: var(--primary); }
+
+/* About section two-column layout */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+}
+.about-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.about-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.about-link-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(31,111,235,.25);
+}
+@media (max-width: 600px) {
+  .about-grid { grid-template-columns: 1fr; }
+  .about-links { flex-direction: row; flex-wrap: wrap; }
+}
+
+/* Contact card layout */
+.contact-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.contact-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+}
+.contact-info a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1.05rem;
+  font-weight: 600;
+  transition: color .15s ease;
+}
+.contact-info a:hover { color: var(--primary); }
+
+/* Smooth theme-switch transition on key elements */
+body, header, footer, section, .card, .button, .icon-btn, nav ul,
+.badge, .skill-tag, .ttt-cell, .ttt-board, input, .snake-modal-content,
+.snake-modal-header, .toast, .contact-card, .about-link-btn {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: .2s;
+  transition-timing-function: ease;
+}
+/* Don't override animation-driven transitions */
+.hero-orb, .shooting-star, .global-ripple, .ripple, canvas,
+.logo-wave span, #scrollProgress { transition: none !important; }
+
+/* prefers-reduced-motion: disable decorative animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .logo-wave span { animation: none; }
+  .hero-orb, .shooting-star { display: none !important; }
+  #inlineSnakeCanvas { animation: none; }
+  section#snake-game, section#tic-tac-toe { animation: none; }
 }

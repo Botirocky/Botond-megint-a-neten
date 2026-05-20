@@ -56,9 +56,18 @@
         </section>
         <section id="about">
             <h2>Rólam</h2>
-            <p>Üdv, Botond vagyok. Szeretném ha ez az oldal egy jó gyakorlás lenne nekem és azon más embereknek akik hozzám hasonlóan érdeklődnek a kódolás és tech iránt.
-            Minden projektem megtalálod <a href="https://github.com/Botirocky" target="_blank" rel="noopener">Github-on.</a></p>
-            <p>A Linktree-men megtalálod a további elérhetőségeim <a href="https://linktr.ee/Botirocky?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnWQNl2-lInl7A3nWM9S7Xys6Ys8_gdXIOU9fBeKkBRAvNe1Qx08PTWVAqwew_aem_MPR7IXLgXqppxHNUVWi5Sg" target="_blank" rel="noopener">itt.</a></p>
+            <div class="about-grid">
+              <div class="about-text">
+                <p>Üdv, Botond vagyok. Szeretném ha ez az oldal egy jó gyakorlás lenne nekem és azon más embereknek akik hozzám hasonlóan érdeklődnek a kódolás és tech iránt.
+                Minden projektem megtalálod <a href="https://github.com/Botirocky" target="_blank" rel="noopener">Github-on.</a></p>
+                <p>A Linktree-men megtalálod a további elérhetőségeim <a href="https://linktr.ee/Botirocky?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnWQNl2-lInl7A3nWM9S7Xys6Ys8_gdXIOU9fBeKkBRAvNe1Qx08PTWVAqwew_aem_MPR7IXLgXqppxHNUVWi5Sg" target="_blank" rel="noopener">itt.</a></p>
+              </div>
+              <div class="about-links">
+                <a href="https://github.com/Botirocky" class="about-link-btn" target="_blank" rel="noopener">🐙 GitHub</a>
+                <a href="https://linktr.ee/Botirocky" class="about-link-btn" target="_blank" rel="noopener">🔗 Linktree</a>
+                <a href="mailto:buczibotond@gmail.com" class="about-link-btn">✉ E‑mail</a>
+              </div>
+            </div>
         </section>
         <section id="content">
             <h2>Tartalom</h2>
@@ -88,9 +97,13 @@
         </section>
         <section id="contact">
             <h2>Elérhetőség</h2>
-            <p>E‑mail: <a id="emailLink" href="mailto:buczibotond@gmail.com">buczibotond@gmail.com</a>
-                <button id="copyEmail" class="button" type="button">Másolás</button>
-            </p>
+            <div class="contact-card">
+              <div class="contact-info">
+                <span class="contact-label">E‑mail</span>
+                <a id="emailLink" href="mailto:buczibotond@gmail.com">buczibotond@gmail.com</a>
+              </div>
+              <button id="copyEmail" class="button" type="button">Másolás</button>
+            </div>
         </section>
         <section id="snake-game" class="revealed" role="region" aria-labelledby="snake-title" style="--d: 400ms;">
             <h2 id="snake-title">Játssz Snake-et</h2>
@@ -1197,7 +1210,7 @@
       }
 
       const ctx = canvas.getContext('2d');
-      const GRID_SIZE = 6;
+      const GRID_SIZE = 15;
       let TILE_SIZE = 400 / GRID_SIZE;
       
       function randomFreeCell(snakeArr) {
@@ -1208,7 +1221,7 @@
         return pos;
       }
       
-      let snake = [{x: 3, y: 3}, {x: 2, y: 3}, {x: 1, y: 3}, {x: 0, y: 3}];
+      let snake = [{x: 7, y: 7}, {x: 6, y: 7}, {x: 5, y: 7}, {x: 4, y: 7}];
       let food = randomFreeCell(snake);
       let direction = {x: 1, y: 0};
       let nextDirection = {x: 1, y: 0};
@@ -1576,7 +1589,7 @@
       document.body.prepend(canvas);
       const ctx = canvas.getContext('2d');
 
-      const N = 32, LINK = 128;
+      const N = window.innerWidth < 600 ? 16 : 32, LINK = 128;
       let W, H, pts = [];
 
       function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
@@ -1627,6 +1640,10 @@
         raf = requestAnimationFrame(frame);
       }
       frame();
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+        else { if (!raf) raf = requestAnimationFrame(frame); }
+      });
     })();
 
     // 3. Logo glitch effect
