@@ -145,12 +145,11 @@ section {
   margin-bottom: 20px;
   opacity: 0;
   transform: translateY(8px);
-  transition: opacity .5s ease, transform .5s ease;
+  transition: opacity .5s ease, transform .5s ease, background-color .2s ease, border-color .2s ease, color .2s ease;
   animation: fadeUp .5s ease forwards;
   animation-delay: var(--d, 0ms);
 }
 
-section#snake,
 section#snake-game {
   max-width: 600px;
   margin-left: auto;
@@ -198,20 +197,8 @@ section.revealed {
   opacity: 0.5;
   cursor: not-allowed;
 }
-#snakeContainer { background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%); border: 2px solid var(--primary); border-radius: 16px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.1); }
 .snake-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:16px; padding-bottom:12px; border-bottom: 2px solid var(--primary); border-image: linear-gradient(90deg, var(--primary), transparent) 1; }
 .snake-header strong { font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--text)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.snake-hidden { display: none; }
-@keyframes buttonBounce {
-  0%, 100% { transform: translateY(-2px); }
-  50% { transform: translateY(1px); }
-}
-@keyframes snakeGlow {
-  0%, 100% { box-shadow: 0 12px 32px rgba(34,180,34,.15), inset 0 1px 2px rgba(255,255,255,.1); }
-  50% { box-shadow: 0 12px 40px rgba(34,180,34,.25), inset 0 1px 2px rgba(255,255,255,.1), 0 0 20px rgba(34,180,34,.15); }
-}
-.snake-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; padding-bottom:8px; border-bottom: 1px solid var(--border); }
-.snake-header strong { font-size: 16px; }
 .canvas-wrapper { display: flex; justify-content: center; width: 100%; position: relative; }
 .snake-canvas {
   width: 100%;
@@ -242,8 +229,6 @@ section.revealed {
 .snake-dpad button:nth-child(4) { grid-column: 3; grid-row: 2; }
 
 @media (max-width: 600px) {
-  #snakeContainer { padding: 12px; }
-  section#snake { padding: 16px; margin: 12px 0; }
   .snake-canvas { max-width: 100%; }
   .snake-controls { display: flex; }
   .snake-header { flex-wrap: wrap; }
@@ -322,7 +307,7 @@ section.revealed {
   background: var(--bg);
   color: inherit;
   text-decoration: none;
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .2s ease, color .2s ease;
   overflow: hidden;
   position: relative;
 }
@@ -429,10 +414,8 @@ section.revealed {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  min-width: 44px;
-  height: 36px;
-  width: 36px;
+  height: 44px;
+  width: 44px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: transparent;
@@ -601,6 +584,8 @@ footer {
 .button:hover { background: var(--border); }
 .button:active { transform: translateY(1px); }
 .button:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.muted { color: var(--muted); }
 
 /* Tic-Tac-Toe (Amőba) */
 .ttt-wrap {
@@ -840,16 +825,6 @@ footer {
   background: rgba(31,111,235,.08);
 }
 
-/* Snake speed indicator */
-.snake-speed-badge {
-  font-size: 12px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: rgba(31,111,235,.1);
-  color: var(--primary);
-  border: 1px solid var(--border);
-  font-weight: 600;
-}
 
 /* ── EXTRA EFFECTS ─────────────────────────────────────────────────────────── */
 
@@ -1135,7 +1110,7 @@ section p a:hover { text-decoration-color: var(--primary); }
 .contact-info a:hover { color: var(--primary); }
 
 /* Smooth theme-switch transition on key elements */
-body, header, footer, section, .card, .button, .icon-btn, nav ul,
+body, header, footer, .button, .icon-btn, nav ul,
 .badge, .skill-tag, .ttt-cell, .ttt-board, input, .snake-modal-content,
 .snake-modal-header, .toast, .contact-card, .about-link-btn {
   transition-property: background-color, border-color, color, box-shadow;

@@ -199,7 +199,7 @@
           <ol id="snakeBoard"></ol>
           <button id="snakeClearBoard" class="button snake-clear" type="button">Töröl ranglistát</button>
         </div>
-        <form id="snakeEntryForm" class="snake-entry snake-entry hidden" onsubmit="return false;" aria-hidden="true">
+        <form id="snakeEntryForm" class="snake-entry hidden" onsubmit="return false;" aria-hidden="true">
           <div class="snake-entry-inner">
             <label for="snakeName">Neved a ranglistához:</label>
             <input id="snakeName" type="text" placeholder="Pl. Boti" aria-label="Név" autofocus />
@@ -214,7 +214,7 @@
     </div>
     <button id="toTop" aria-label="Vissza a tetejére" title="Vissza a tetejére">↑</button>
     <footer>
-        <p>&copy; 2025 Buczi Botond. Minden jog fenntartva.</p>
+        <p>&copy; 2026 Buczi Botond. Minden jog fenntartva.</p>
         <div class="footer-links">
             <a href="https://github.com/Botirocky" target="_blank" rel="noopener">GitHub</a>
             <a href="https://linktr.ee/Botirocky" target="_blank" rel="noopener">Linktree</a>
@@ -318,7 +318,13 @@
         snakeClearBoard: 'Töröl ranglistát',
         snakeEntryLabel: 'Neved a ranglistához:',
         snakeSaveEntry: '✓ Mentés',
-        snakeCancelEntry: '✕ Mégse'
+        snakeCancelEntry: '✕ Mégse',
+        snakeLost: 'Vesztettél!',
+        snakeScorePrefix: 'Pont: ',
+        snakeBestPrefix: 'Legjobb: ',
+        tttWinSuffix: ' nyert!',
+        tttDraw: 'Döntetlen!',
+        tttTurnSuffix: ' következik'
       },
       en: {
         navHome: 'Home',
@@ -360,7 +366,13 @@
         snakeClearBoard: 'Clear leaderboard',
         snakeEntryLabel: 'Your name for the leaderboard:',
         snakeSaveEntry: '✓ Save',
-        snakeCancelEntry: '✕ Cancel'
+        snakeCancelEntry: '✕ Cancel',
+        snakeLost: 'You lost!',
+        snakeScorePrefix: 'Score: ',
+        snakeBestPrefix: 'Best: ',
+        tttWinSuffix: ' won!',
+        tttDraw: "It's a draw!",
+        tttTurnSuffix: ' to move'
       }
     };
 
@@ -442,10 +454,8 @@
 
       // Tic-Tac-Toe
       const tttTitle = document.getElementById('ttt-title');
-      const tttStatus = document.getElementById('tttStatus');
       const tttReset = document.getElementById('tttReset');
       if (tttTitle) tttTitle.textContent = t.tttTitle;
-      if (tttStatus) tttStatus.textContent = t.tttStatusInitial;
       if (tttReset) tttReset.textContent = t.tttReset;
 
       // Snake modal texts
@@ -470,6 +480,12 @@
       if (snakeEntryLabel) snakeEntryLabel.textContent = t.snakeEntryLabel;
       if (snakeSaveEntryBtn) snakeSaveEntryBtn.textContent = t.snakeSaveEntry;
       if (snakeCancelEntryBtn) snakeCancelEntryBtn.textContent = t.snakeCancelEntry;
+
+      // Modal snake: frissíti a pont/legjobb kijelzőt ha már van érték
+      const snakeScoreEl = document.getElementById('snakeScore');
+      const snakeBestEl = document.getElementById('snakeBest');
+      if (snakeScoreEl) snakeScoreEl.textContent = (t.snakeScorePrefix || 'Pont: ') + (snakeScoreEl.textContent.replace(/\D/g, '') || '0');
+      if (snakeBestEl) snakeBestEl.textContent = (t.snakeBestPrefix || 'Legjobb: ') + (snakeBestEl.textContent.replace(/\D/g, '') || '0');
     }
 
     applyLang(currentLang);
@@ -588,9 +604,10 @@
           badges.appendChild(badge);
           root.appendChild(node);
         });
+        attachCardTilt();
       } catch (err) {
         // Fallback: list a hint card
-        root.innerHTML = `<div class="card hint"></div>`;
+        root.innerHTML = `<div class="card hint"><div class="card-inner"><div class="card-title">${currentLang === 'en' ? 'No content available yet' : 'Még nincs tartalom'}</div></div></div>`;
       }
     }
     buildContentList();
@@ -902,15 +919,16 @@
       }
 
       function updateScore(){
-        scoreEl.textContent = 'Pont: ' + score;
+        const t = translations[currentLang] || translations.hu;
+        scoreEl.textContent = (t.snakeScorePrefix || 'Pont: ') + score;
         if (score > best) {
           best = score;
           saveBest();
-          bestEl.textContent = 'Legjobb: ' + best;
+          bestEl.textContent = (t.snakeBestPrefix || 'Legjobb: ') + best;
           const r = canvas.getBoundingClientRect();
           confettiBurst(r.left + r.width/2, r.top + r.height/2);
         } else {
-          bestEl.textContent = 'Legjobb: ' + best;
+          bestEl.textContent = (t.snakeBestPrefix || 'Legjobb: ') + best;
         }
       }
 
@@ -1046,7 +1064,7 @@
         running = false;
         if (loopId) clearInterval(loopId);
         loopId = null;
-        statusEl.textContent = 'Vesztettél!';
+        statusEl.textContent = (translations[currentLang] || translations.hu).snakeLost || 'Vesztettél!';
         statusEl.classList.add('snake-lose');
         if (score > 0) {
           showEntryForm(score);
@@ -1095,7 +1113,7 @@
         resetBtn.addEventListener('click', () => {
           best = 0;
           saveBest();
-          bestEl.textContent = 'Legjobb: 0';
+          bestEl.textContent = ((translations[currentLang] || translations.hu).snakeBestPrefix || 'Legjobb: ') + '0';
         });
       }
 
@@ -1458,6 +1476,7 @@
       // Touch controls
       canvas.addEventListener('touchstart', (e) => {
         if (!running) return;
+        e.preventDefault();
         const touch = e.touches[0];
         const rect = canvas.getBoundingClientRect();
         const x = touch.clientX - rect.left;
@@ -1474,7 +1493,7 @@
           if (dy > 0 && direction.y === 0) nextDirection = {x: 0, y: 1};
           else if (dy < 0 && direction.y === 0) nextDirection = {x: 0, y: -1};
         }
-      });
+      }, { passive: false });
 
       // Initialize
       loadBest();
@@ -1534,29 +1553,31 @@
 
         if (result) {
           over = true;
+          const t = translations[currentLang] || translations.hu;
           if (result.win) {
-            setStatus(result.who + ' nyert!');
+            setStatus(result.who + (t.tttWinSuffix || ' nyert!'));
             highlightWin(result.line);
           } else {
-            setStatus('Döntetlen!');
+            setStatus(t.tttDraw || 'Döntetlen!');
           }
           return;
         }
         turn = turn === 'X' ? 'O' : 'X';
-        setStatus(turn + ' következik');
+        setStatus(turn + ((translations[currentLang] || translations.hu).tttTurnSuffix || ' következik'));
       }
 
       function reset() {
         board = ['','','','','','','','',''];
         turn = 'X';
         over = false;
-        setStatus('X következik');
+        setStatus('X' + ((translations[currentLang] || translations.hu).tttTurnSuffix || ' következik'));
         render();
       }
 
       boardEl.addEventListener('click', handleClick);
       resetBtn.addEventListener('click', reset);
       render();
+      setStatus('X' + ((translations[currentLang] || translations.hu).tttTurnSuffix || ' következik'));
     })();
     </script>
 
