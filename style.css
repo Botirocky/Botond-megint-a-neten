@@ -6,6 +6,7 @@
   --muted: #666;
   --surface: #f5f7fb;
   --border: #e5e7eb;
+  --header-h: 64px;
 }
 
 :root.dark {
@@ -59,6 +60,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 1000;
+  height: var(--header-h);
   background: rgba(245, 247, 251, 0.88);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(14px);
@@ -71,10 +73,11 @@ header {
 .header-inner {
   max-width: 1000px;
   margin: 0 auto;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 0 16px;
   gap: 12px;
 }
 
@@ -395,7 +398,7 @@ section.revealed {
 @media (max-width: 720px) {
   nav ul {
     position: fixed;
-    top: calc(56px + env(safe-area-inset-top));
+    top: calc(var(--header-h) + env(safe-area-inset-top));
     right: max(12px, env(safe-area-inset-right));
     left: auto;
     background: var(--surface);
@@ -415,7 +418,7 @@ section.revealed {
 
 /* Phone-first layout */
 @media (max-width: 600px) {
-  .header-inner { padding: 10px 12px; gap: 8px; }
+  .header-inner { padding: 0 12px; gap: 8px; }
   h1 { font-size: 16px; }
   .logo-wave span { font-size: 0.9em; }
   .container { padding: 16px 12px 48px; }
@@ -1115,7 +1118,9 @@ body { background: #04010d; }
 /* Neon glowing hacker headings */
 .logo-wave {
   font-family: 'VT323', monospace;
-  font-size: 30px; letter-spacing: 1px; color: #cfe3ff;
+  font-size: clamp(16px, 2.4vw, 28px);
+  letter-spacing: 1px; color: #cfe3ff;
+  white-space: nowrap; line-height: 1;
   text-shadow: 1px 1px 2px #000, 0 0 10px rgba(22,22,231,.95), 0 0 4px rgba(7,7,170,.95);
 }
 nav a { font-family: 'VT323', monospace; font-size: 19px; letter-spacing: .5px; }
@@ -1177,4 +1182,4 @@ footer p, footer a { font-family: 'VT323', monospace; font-size: 18px; color: #5
   body::after { animation: none; }
   .ts-title { animation: none; }
 }
-@media (max-width: 600px) { .logo-wave { font-size: 24px; } }
+@media (max-width: 600px) { .logo-wave { font-size: clamp(14px, 4.4vw, 22px); } }
