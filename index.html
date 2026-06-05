@@ -11,11 +11,14 @@
     <meta property="og:title" content="botondmegintaneten.hu">
     <meta property="og:description" content="Etikus hekk és kódok – Botond megint a neten">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="/">
+    <meta property="og:url" content="https://botondmegintaneten.hu">
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <meta name="theme-color" content="#0b0f17">
+    <meta name="theme-color" content="#04010d">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -36,6 +39,7 @@
                     <li><a href="#about">Rólam</a></li>
                     <li><a href="#content">Tartalom</a></li>
                     <li><a href="#gallery">Galéria</a></li>
+                    <li><a href="#videos">Videók</a></li>
                     <li><a href="#" class="snake-menu-link">Snake</a></li>
                     <li><a href="#tic-tac-toe">Amőba</a></li>
                     <li><a href="#skills">Ismeretek</a></li>
@@ -44,8 +48,25 @@
             </nav>
         </div>
     </header>
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>⚡ ETIKUS HEKK</span><span>•</span><span>🐍 PYTHON</span><span>•</span><span>🌐 WEB</span><span>•</span><span>📡 ESP / IoT</span><span>•</span><span>🐬 FLIPPER ZERO</span><span>•</span><span>🤖 AI &amp; API</span><span>•</span><span>🐧 LINUX</span><span>•</span><span>🔓 CTF</span><span>•</span>
+        <span>⚡ ETIKUS HEKK</span><span>•</span><span>🐍 PYTHON</span><span>•</span><span>🌐 WEB</span><span>•</span><span>📡 ESP / IoT</span><span>•</span><span>🐬 FLIPPER ZERO</span><span>•</span><span>🤖 AI &amp; API</span><span>•</span><span>🐧 LINUX</span><span>•</span><span>🔓 CTF</span><span>•</span>
+      </div>
+    </div>
     <main class="container">
         <section id="home">
+        <div class="ts-hero">
+          <h2 class="ts-title">BOTOND</h2>
+          <p class="ts-subtitle">&gt; etikus hekk_ &bull; kódok &bull; tech</p>
+          <div class="ts-links">
+            <a class="ts-link" href="https://github.com/Botirocky" target="_blank" rel="noopener"><span class="ts-ico">🐙</span>GitHub</a>
+            <a class="ts-link" href="https://linktr.ee/Botirocky" target="_blank" rel="noopener"><span class="ts-ico">🔗</span>Linktree</a>
+            <a class="ts-link" href="https://www.youtube.com/@Botirocky" target="_blank" rel="noopener"><span class="ts-ico">▶️</span>YouTube</a>
+            <a class="ts-link" href="https://discord.gg/" target="_blank" rel="noopener"><span class="ts-ico">💬</span>Discord</a>
+            <a class="ts-link" href="mailto:buczibotond@gmail.com"><span class="ts-ico">✉️</span>E‑mail</a>
+          </div>
+        </div>
         <div class="hero">
           <div>
           <h2>Főoldal</h2>
@@ -66,6 +87,27 @@
                 <a href="https://github.com/Botirocky" class="about-link-btn" target="_blank" rel="noopener">🐙 GitHub</a>
                 <a href="https://linktr.ee/Botirocky" class="about-link-btn" target="_blank" rel="noopener">🔗 Linktree</a>
                 <a href="mailto:buczibotond@gmail.com" class="about-link-btn">✉ E‑mail</a>
+              </div>
+            </div>
+        </section>
+        <section id="stats">
+            <h2 data-i18n="statsTitle">Számokban</h2>
+            <div class="stats-grid">
+              <div class="stat">
+                <div class="stat-num" data-target="25" data-suffix="+">0</div>
+                <div class="stat-label" data-i18n="statProjects">Projekt</div>
+              </div>
+              <div class="stat">
+                <div class="stat-num" data-target="15" data-suffix="+">0</div>
+                <div class="stat-label" data-i18n="statRepos">GitHub repó</div>
+              </div>
+              <div class="stat">
+                <div class="stat-num" data-target="4" data-suffix="+">0</div>
+                <div class="stat-label" data-i18n="statYears">Év kódolás</div>
+              </div>
+              <div class="stat">
+                <div class="stat-num" data-target="999" data-suffix="+">0</div>
+                <div class="stat-label" data-i18n="statCoffee">Elfogyott kávé</div>
               </div>
             </div>
         </section>
@@ -91,9 +133,32 @@
                 <img loading="lazy" src="https://yt3.googleusercontent.com/ytc/AIdro_k2s1oV-ElOIvdSw3y-93nHW7TioYxFoWwF5i2um4PN-cs=s900-c-k-c0x00ffffff-no-rj" alt="Terry Davis" class="glight">
             </div>
         </section>
+        <section id="videos">
+            <h2 data-i18n="videosTitle">Legújabb videók</h2>
+            <div class="video-grid" id="videoGrid" aria-live="polite"></div>
+        </section>
         <section id="skills">
             <h2 id="skills-title">Ismeretek</h2>
             <div class="skills-grid" id="skillsGrid"></div>
+        </section>
+        <section id="newsletter">
+            <h2 data-i18n="newsletterTitle">Iratkozz fel</h2>
+            <div class="newsletter-card">
+              <p class="muted" data-i18n="newsletterDesc">Kapj értesítést az új projektekről és tartalmakról. Spam nélkül.</p>
+              <form id="newsletterForm" class="newsletter-form" novalidate>
+                <input id="newsletterEmail" type="email" required placeholder="E‑mail címed" data-i18n-ph="newsletterPlaceholder" aria-label="E‑mail">
+                <button class="button" type="submit" data-i18n="newsletterButton">Feliratkozás</button>
+              </form>
+            </div>
+        </section>
+        <section id="community">
+            <div class="discord-cta">
+              <div class="discord-cta-text">
+                <h2 data-i18n="communityTitle">Csatlakozz a közösséghez</h2>
+                <p class="muted" data-i18n="communityDesc">Beszélgess kódolásról, techről és etikus hekkről a Discord szerveremen.</p>
+              </div>
+              <a class="button discord-btn" href="https://discord.gg/" target="_blank" rel="noopener" data-i18n="communityButton">💬 Discord meghívó</a>
+            </div>
         </section>
         <section id="contact">
             <h2>Elérhetőség</h2>
@@ -163,55 +228,6 @@
             </div>
         </section>
     </main>
-    <!-- Snake Modal -->
-    <div id="snakeModal" class="snake-modal hidden" aria-hidden="true">
-      <div class="snake-modal-backdrop"></div>
-      <div class="snake-modal-content">
-        <div class="snake-modal-header">
-          <h2>Snake Játék</h2>
-          <button id="snakeModalClose" class="icon-btn" aria-label="Bezárás">✕</button>
-        </div>
-        <div class="snake-modal-body">
-          <div class="snake-header">
-            <strong>Játéktábla</strong>
-            <div>
-              <button id="startSnake" class="button" type="button">Start</button>
-              <button id="snakeRestart" class="button" type="button">Újra</button>
-              <button id="snakeResetBest" class="button" type="button">Reset Legjobb</button>
-            </div>
-        </div>
-        <div class="canvas-wrapper"><canvas id="snakeCanvas" class="snake-canvas"></canvas></div>
-        <div class="snake-controls" id="snakeControls">
-          <button class="snake-up" aria-label="Fel">▲</button>
-          <div class="snake-dpad">
-            <button class="snake-left" aria-label="Bal">◄</button>
-            <button class="snake-down" aria-label="Le">▼</button>
-            <button class="snake-right" aria-label="Jobbra">►</button>
-          </div>
-        </div>
-        <div class="snake-footer">
-          <span id="snakeScore">Pont: 0</span>
-          <span id="snakeBest" class="muted">Legjobb: 0</span>
-          <span id="snakeStatus" class="muted"></span>
-        </div>
-        <div class="snake-leaderboard" aria-live="polite">
-          <h4>Ranglista</h4>
-          <ol id="snakeBoard"></ol>
-          <button id="snakeClearBoard" class="button snake-clear" type="button">Töröl ranglistát</button>
-        </div>
-        <form id="snakeEntryForm" class="snake-entry hidden" onsubmit="return false;" aria-hidden="true">
-          <div class="snake-entry-inner">
-            <label for="snakeName">Neved a ranglistához:</label>
-            <input id="snakeName" type="text" placeholder="Pl. Boti" aria-label="Név" autofocus />
-          </div>
-          <div class="snake-entry-buttons">
-            <button id="snakeSaveEntry" class="button btn-primary" type="button">✓ Mentés</button>
-            <button id="snakeCancelEntry" class="button" type="button">✕ Mégse</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    </div>
     <button id="toTop" aria-label="Vissza a tetejére" title="Vissza a tetejére">↑</button>
     <footer>
         <p>&copy; 2026 Buczi Botond. Minden jog fenntartva.</p>
@@ -226,8 +242,8 @@
     // Theme initialize from system/localStorage
     (function initTheme(){
       const stored = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (stored === 'dark' || (!stored && prefersDark)) document.documentElement.classList.add('dark');
+      // Sötét a retro/synthwave alapértelmezés; csak explicit 'light' kapcsol világosra.
+      if (stored !== 'light') document.documentElement.classList.add('dark');
     })();
 
     // Register service worker
@@ -302,6 +318,7 @@
         snakeInlineTitle: 'Játssz Snake-et',
         inlineStart: '▶ Start',
         inlinePause: '⏸ Szünet',
+        inlineResume: '▶ Folytatás',
         inlineReset: '🔄 Újra',
         inlinePointsLabel: 'PONT',
         inlineBestLabel: 'LEGJOBB',
@@ -310,21 +327,27 @@
         tttTitle: 'Amőba (Tic-Tac-Toe)',
         tttStatusInitial: 'X következik',
         tttReset: 'Új játék',
-        snakeModalTitle: 'Snake Játék',
-        snakeBoardTitle: 'Ranglista',
-        snakeStart: 'Start',
-        snakeRestart: 'Újra',
-        snakeResetBest: 'Reset Legjobb',
-        snakeClearBoard: 'Töröl ranglistát',
-        snakeEntryLabel: 'Neved a ranglistához:',
-        snakeSaveEntry: '✓ Mentés',
-        snakeCancelEntry: '✕ Mégse',
-        snakeLost: 'Vesztettél!',
-        snakeScorePrefix: 'Pont: ',
-        snakeBestPrefix: 'Legjobb: ',
         tttWinSuffix: ' nyert!',
         tttDraw: 'Döntetlen!',
-        tttTurnSuffix: ' következik'
+        tttTurnSuffix: ' következik',
+        navVideos: 'Videók',
+        statsTitle: 'Számokban',
+        statProjects: 'Projekt',
+        statRepos: 'GitHub repó',
+        statYears: 'Év kódolás',
+        statCoffee: 'Elfogyott kávé',
+        videosTitle: 'Legújabb videók',
+        videosSoon: 'Hamarosan',
+        newsletterTitle: 'Iratkozz fel',
+        newsletterDesc: 'Kapj értesítést az új projektekről és tartalmakról. Spam nélkül.',
+        newsletterPlaceholder: 'E‑mail címed',
+        newsletterButton: 'Feliratkozás',
+        newsletterSuccess: 'Sikeres feliratkozás! 🎉',
+        newsletterInvalid: 'Adj meg egy érvényes e‑mail címet!',
+        newsletterDup: 'Ezzel az e‑maillel már feliratkoztál.',
+        communityTitle: 'Csatlakozz a közösséghez',
+        communityDesc: 'Beszélgess kódolásról, techről és etikus hekkről a Discord szerveremen.',
+        communityButton: '💬 Discord meghívó'
       },
       en: {
         navHome: 'Home',
@@ -350,6 +373,7 @@
         snakeInlineTitle: 'Play Snake',
         inlineStart: '▶ Start',
         inlinePause: '⏸ Pause',
+        inlineResume: '▶ Resume',
         inlineReset: '🔄 Restart',
         inlinePointsLabel: 'SCORE',
         inlineBestLabel: 'BEST',
@@ -358,21 +382,27 @@
         tttTitle: 'Tic-Tac-Toe',
         tttStatusInitial: 'X to move',
         tttReset: 'New game',
-        snakeModalTitle: 'Snake Game',
-        snakeBoardTitle: 'Leaderboard',
-        snakeStart: 'Start',
-        snakeRestart: 'Restart',
-        snakeResetBest: 'Reset best',
-        snakeClearBoard: 'Clear leaderboard',
-        snakeEntryLabel: 'Your name for the leaderboard:',
-        snakeSaveEntry: '✓ Save',
-        snakeCancelEntry: '✕ Cancel',
-        snakeLost: 'You lost!',
-        snakeScorePrefix: 'Score: ',
-        snakeBestPrefix: 'Best: ',
         tttWinSuffix: ' won!',
         tttDraw: "It's a draw!",
-        tttTurnSuffix: ' to move'
+        tttTurnSuffix: ' to move',
+        navVideos: 'Videos',
+        statsTitle: 'By the numbers',
+        statProjects: 'Projects',
+        statRepos: 'GitHub repos',
+        statYears: 'Years coding',
+        statCoffee: 'Cups of coffee',
+        videosTitle: 'Latest videos',
+        videosSoon: 'Coming soon',
+        newsletterTitle: 'Subscribe',
+        newsletterDesc: 'Get notified about new projects and content. No spam.',
+        newsletterPlaceholder: 'Your e‑mail',
+        newsletterButton: 'Subscribe',
+        newsletterSuccess: 'Subscribed successfully! 🎉',
+        newsletterInvalid: 'Please enter a valid e‑mail address!',
+        newsletterDup: 'You are already subscribed with this e‑mail.',
+        communityTitle: 'Join the community',
+        communityDesc: 'Chat about coding, tech and ethical hacking on my Discord server.',
+        communityButton: '💬 Discord invite'
       }
     };
 
@@ -458,34 +488,19 @@
       if (tttTitle) tttTitle.textContent = t.tttTitle;
       if (tttReset) tttReset.textContent = t.tttReset;
 
-      // Snake modal texts
-      const snakeModalTitle = document.querySelector('#snakeModal h2');
-      const snakeHeaderLabel = document.querySelector('.snake-header strong');
-      const startSnakeBtn = document.getElementById('startSnake');
-      const snakeRestartBtn = document.getElementById('snakeRestart');
-      const snakeResetBestBtn = document.getElementById('snakeResetBest');
-      const snakeBoardTitle = document.querySelector('.snake-leaderboard h4');
-      const snakeClearBoardBtn = document.getElementById('snakeClearBoard');
-      const snakeEntryLabel = document.querySelector('#snakeEntryForm label[for="snakeName"]');
-      const snakeSaveEntryBtn = document.getElementById('snakeSaveEntry');
-      const snakeCancelEntryBtn = document.getElementById('snakeCancelEntry');
+      // Videók menüpont
+      const navVideos = document.querySelector('a[href="#videos"]');
+      if (navVideos) navVideos.textContent = t.navVideos;
 
-      if (snakeModalTitle) snakeModalTitle.textContent = t.snakeModalTitle;
-      if (snakeHeaderLabel) snakeHeaderLabel.textContent = t.snakeInlineTitle;
-      if (startSnakeBtn) startSnakeBtn.textContent = t.snakeStart;
-      if (snakeRestartBtn) snakeRestartBtn.textContent = t.snakeRestart;
-      if (snakeResetBestBtn) snakeResetBestBtn.textContent = t.snakeResetBest;
-      if (snakeBoardTitle) snakeBoardTitle.textContent = t.snakeBoardTitle;
-      if (snakeClearBoardBtn) snakeClearBoardBtn.textContent = t.snakeClearBoard;
-      if (snakeEntryLabel) snakeEntryLabel.textContent = t.snakeEntryLabel;
-      if (snakeSaveEntryBtn) snakeSaveEntryBtn.textContent = t.snakeSaveEntry;
-      if (snakeCancelEntryBtn) snakeCancelEntryBtn.textContent = t.snakeCancelEntry;
-
-      // Modal snake: frissíti a pont/legjobb kijelzőt ha már van érték
-      const snakeScoreEl = document.getElementById('snakeScore');
-      const snakeBestEl = document.getElementById('snakeBest');
-      if (snakeScoreEl) snakeScoreEl.textContent = (t.snakeScorePrefix || 'Pont: ') + (snakeScoreEl.textContent.replace(/\D/g, '') || '0');
-      if (snakeBestEl) snakeBestEl.textContent = (t.snakeBestPrefix || 'Legjobb: ') + (snakeBestEl.textContent.replace(/\D/g, '') || '0');
+      // Generikus fordítás: minden [data-i18n] / [data-i18n-ph] elem (új szekciók)
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key] != null) el.textContent = t[key];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (t[key] != null) el.placeholder = t[key];
+      });
     }
 
     applyLang(currentLang);
@@ -807,407 +822,15 @@
       if (e.key === 'g') { scrollWithOffset('#gallery'); }
     });
 
-    // Snake game logic (simplified & robust) + leaderboard
-    (function snakeGame(){
-      const startBtn   = document.getElementById('startSnake');
-      const restartBtn = document.getElementById('snakeRestart');
-      const resetBtn   = document.getElementById('snakeResetBest');
-      const canvas     = document.getElementById('snakeCanvas');
-      const scoreEl    = document.getElementById('snakeScore');
-      const bestEl     = document.getElementById('snakeBest');
-      const statusEl   = document.getElementById('snakeStatus');
-      const boardEl    = document.getElementById('snakeBoard');
-      const clearBoardBtn = document.getElementById('snakeClearBoard');
-      const entryForm  = document.getElementById('snakeEntryForm');
-      const nameInput  = document.getElementById('snakeName');
-      const saveEntryBtn   = document.getElementById('snakeSaveEntry');
-      const cancelEntryBtn = document.getElementById('snakeCancelEntry');
-
-      if (!canvas || !startBtn || !scoreEl || !bestEl || !statusEl) {
-        return;
-      }
-
-      const ctx = canvas.getContext('2d');
-
-      const GRID_SIZE   = 16;
-      const TICK_MS     = 220;
-      let tileSize      = 20;
-
-      let snake   = [];
-      let dir     = { x: 1, y: 0 };
-      let nextDir = { x: 1, y: 0 };
-      let food    = null;
-      let score   = 0;
-      let best    = 0;
-      let loopId  = null;
-      let running = false;
-      let leaderboard = [];
-      let pendingScore = null;
-
-      // Best score persistence
-      (function loadBest(){
-        try {
-          const raw = localStorage.getItem('snake_best_v2');
-          if (!raw) return;
-          const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed.score === 'number') {
-            best = parsed.score;
-          }
-        } catch(e){}
-      })();
-
-      // Leaderboard persistence (top 5)
-      (function loadLeaderboard(){
-        try {
-          const raw = localStorage.getItem('snake_board_v1');
-          if (!raw) return;
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            leaderboard = parsed
-              .filter(e => typeof e.score === 'number')
-              .sort((a, b) => b.score - a.score)
-              .slice(0, 5);
-            renderLeaderboard();
-          }
-        } catch(e){}
-      })();
-
-      function saveBest(){
-        try {
-          localStorage.setItem('snake_best_v2', JSON.stringify({ score: best }));
-        } catch(e){}
-      }
-
-      function saveLeaderboard(){
-        try {
-          localStorage.setItem('snake_board_v1', JSON.stringify(leaderboard));
-        } catch(e){}
-      }
-
-      function renderLeaderboard(){
-        if (!boardEl) return;
-        boardEl.innerHTML = '';
-        leaderboard.forEach(entry => {
-          const li = document.createElement('li');
-          const nameSpan = document.createElement('span');
-          nameSpan.className = 'name';
-          nameSpan.textContent = entry.name || 'Ismeretlen';
-          const metaSpan = document.createElement('span');
-          metaSpan.className = 'meta';
-          const date = entry.date ? ' · ' + entry.date : '';
-          metaSpan.textContent = `${entry.score} pont${date}`;
-          li.appendChild(nameSpan);
-          li.appendChild(metaSpan);
-          boardEl.appendChild(li);
-        });
-      }
-
-      function showEntryForm(finalScore){
-        if (!entryForm || !nameInput) return;
-        pendingScore = finalScore;
-        entryForm.classList.remove('hidden');
-        entryForm.setAttribute('aria-hidden', 'false');
-        if (!nameInput.value) nameInput.value = '';
-        nameInput.focus();
-      }
-
-      function hideEntryForm(){
-        if (!entryForm) return;
-        entryForm.classList.add('hidden');
-        entryForm.setAttribute('aria-hidden', 'true');
-        pendingScore = null;
-      }
-
-      function updateScore(){
-        const t = translations[currentLang] || translations.hu;
-        scoreEl.textContent = (t.snakeScorePrefix || 'Pont: ') + score;
-        if (score > best) {
-          best = score;
-          saveBest();
-          bestEl.textContent = (t.snakeBestPrefix || 'Legjobb: ') + best;
-          const r = canvas.getBoundingClientRect();
-          confettiBurst(r.left + r.width/2, r.top + r.height/2);
-        } else {
-          bestEl.textContent = (t.snakeBestPrefix || 'Legjobb: ') + best;
-        }
-      }
-
-      function resizeCanvas(){
-        const rect = canvas.parentElement.getBoundingClientRect();
-        const size = Math.min(rect.width, 400);
-        canvas.width  = size;
-        canvas.height = size;
-        tileSize = size / GRID_SIZE;
-        draw();
-      }
-
-      function randomFreeCell(){
-        while (true) {
-          const x = Math.floor(Math.random() * GRID_SIZE);
-          const y = Math.floor(Math.random() * GRID_SIZE);
-          if (!snake.some(s => s.x === x && s.y === y)) return { x, y };
-        }
-      }
-
-      function init(){
-        const mid = Math.floor(GRID_SIZE / 2);
-        snake = [
-          { x: mid,     y: mid },
-          { x: mid - 1, y: mid },
-          { x: mid - 2, y: mid }
-        ];
-        dir     = { x: 1, y: 0 };
-        nextDir = { x: 1, y: 0 };
-        food    = randomFreeCell();
-        score   = 0;
-        running = false;
-        statusEl.textContent = '';
-        statusEl.classList.remove('snake-lose');
-        updateScore();
-        draw();
-      }
-
-      function draw(){
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // background
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // grid
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
-        ctx.lineWidth = 1;
-        for (let i = 0; i <= GRID_SIZE; i++) {
-          const p = i * tileSize;
-          ctx.beginPath();
-          ctx.moveTo(p, 0);
-          ctx.lineTo(p, canvas.height);
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.moveTo(0, p);
-          ctx.lineTo(canvas.width, p);
-          ctx.stroke();
-        }
-
-        // food
-        if (food) {
-          ctx.fillStyle = '#f97316';
-          const fx = food.x * tileSize + tileSize / 2;
-          const fy = food.y * tileSize + tileSize / 2;
-          ctx.beginPath();
-          ctx.arc(fx, fy, tileSize * 0.35, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // snake
-        snake.forEach((seg, idx) => {
-          const hue = 140;
-          const light = 45 + (idx / snake.length) * 20;
-          ctx.fillStyle = `hsl(${hue}, 70%, ${light}%)`;
-          ctx.fillRect(
-            seg.x * tileSize + 2,
-            seg.y * tileSize + 2,
-            tileSize - 4,
-            tileSize - 4
-          );
-
-          if (idx === 0) {
-            ctx.strokeStyle = `hsl(${hue}, 95%, 80%)`;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(
-              seg.x * tileSize + 2,
-              seg.y * tileSize + 2,
-              tileSize - 4,
-              tileSize - 4
-            );
-          }
-        });
-      }
-
-      function step(){
-        if (!running) return;
-
-        dir = nextDir;
-        const head = {
-          x: snake[0].x + dir.x,
-          y: snake[0].y + dir.y
-        };
-
-        // wall collision
-        if (
-          head.x < 0 || head.x >= GRID_SIZE ||
-          head.y < 0 || head.y >= GRID_SIZE
-        ) {
-          return gameOver();
-        }
-
-        // self collision
-        if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
-          return gameOver();
-        }
-
-        snake.unshift(head);
-
-        if (food && head.x === food.x && head.y === food.y) {
-          score++;
-          updateScore();
-          food = randomFreeCell();
-        } else {
-          snake.pop();
-        }
-
-        draw();
-      }
-
-      function gameOver(){
-        running = false;
-        if (loopId) clearInterval(loopId);
-        loopId = null;
-        statusEl.textContent = (translations[currentLang] || translations.hu).snakeLost || 'Vesztettél!';
-        statusEl.classList.add('snake-lose');
-        if (score > 0) {
-          showEntryForm(score);
-        }
-      }
-
-      function startGame(){
-        if (running) return;
-        running = true;
-        statusEl.textContent = '';
-        if (loopId) clearInterval(loopId);
-        loopId = setInterval(step, TICK_MS);
-      }
-
-      function restartGame(){
-        if (loopId) clearInterval(loopId);
-        loopId = null;
-        init();
-        startGame();
-      }
-
-      // keyboard controls
-      document.addEventListener('keydown', (e) => {
-        const k = e.key;
-        if (k === 'ArrowUp' || k === 'w')  { if (dir.y !== 1)  nextDir = { x: 0,  y: -1 }; }
-        if (k === 'ArrowDown' || k === 's'){ if (dir.y !== -1) nextDir = { x: 0,  y: 1  }; }
-        if (k === 'ArrowLeft' || k === 'a'){ if (dir.x !== 1)  nextDir = { x: -1, y: 0  }; }
-        if (k === 'ArrowRight' || k === 'd'){ if (dir.x !== -1) nextDir = { x: 1,  y: 0  }; }
-      });
-
-      // touch controls (D‑pad)
-      const upBtn    = document.querySelector('.snake-up');
-      const downBtn  = document.querySelector('.snake-down');
-      const leftBtn  = document.querySelector('.snake-left');
-      const rightBtn = document.querySelector('.snake-right');
-
-      if (upBtn)    upBtn.addEventListener('click',   () => { if (dir.y !== 1)  nextDir = { x: 0,  y: -1 }; });
-      if (downBtn)  downBtn.addEventListener('click', () => { if (dir.y !== -1) nextDir = { x: 0,  y: 1  }; });
-      if (leftBtn)  leftBtn.addEventListener('click', () => { if (dir.x !== 1)  nextDir = { x: -1, y: 0  }; });
-      if (rightBtn) rightBtn.addEventListener('click',() => { if (dir.x !== -1) nextDir = { x: 1,  y: 0  }; });
-
-      // buttons
-      startBtn.addEventListener('click', startGame);
-      if (restartBtn) restartBtn.addEventListener('click', restartGame);
-      if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
-          best = 0;
-          saveBest();
-          bestEl.textContent = ((translations[currentLang] || translations.hu).snakeBestPrefix || 'Legjobb: ') + '0';
-        });
-      }
-
-      if (saveEntryBtn) {
-        saveEntryBtn.addEventListener('click', () => {
-          if (pendingScore == null) {
-            hideEntryForm();
-            return;
-          }
-          const name = (nameInput && nameInput.value.trim()) || 'Ismeretlen';
-          const entry = {
-            name,
-            score: pendingScore,
-            date: new Date().toLocaleString('hu-HU')
-          };
-          leaderboard.push(entry);
-          leaderboard.sort((a, b) => b.score - a.score);
-          leaderboard = leaderboard.slice(0, 5);
-          saveLeaderboard();
-          renderLeaderboard();
-          hideEntryForm();
-        });
-      }
-
-      if (cancelEntryBtn) {
-        cancelEntryBtn.addEventListener('click', () => {
-          hideEntryForm();
-        });
-      }
-
-      if (clearBoardBtn) {
-        clearBoardBtn.addEventListener('click', () => {
-          leaderboard = [];
-          saveLeaderboard();
-          if (boardEl) boardEl.innerHTML = '';
-        });
-      }
-
-      window.addEventListener('resize', resizeCanvas);
-
-      // init
-      init();
-      resizeCanvas();
-    })();
-
-    // Snake Modal Handlers
+    // Snake menüpont: görgetés a beágyazott játékhoz
     (function() {
-      const modal = document.getElementById('snakeModal');
       const snakeMenuLink = document.querySelector('.snake-menu-link');
-      const closeBtn = document.getElementById('snakeModalClose');
-      const backdrop = document.querySelector('.snake-modal-backdrop');
-
-      function openModal() {
-        if (!modal) return;
-        modal.classList.remove('hidden');
-        modal.setAttribute('aria-hidden', 'false');
-        // Auto-start the Snake game and ensure the canvas is properly sized
-        try {
-          const startBtn = document.getElementById('startSnake');
-          if (startBtn) {
-            startBtn.click();
-          }
-          // Force a resize so the Snake canvas recalculates its dimensions
-          window.dispatchEvent(new Event('resize'));
-        } catch (e) {}
-      }
-
-      function closeModal() {
-        if (!modal) return;
-        modal.classList.add('hidden');
-        modal.setAttribute('aria-hidden', 'true');
-      }
-
       if (snakeMenuLink) {
         snakeMenuLink.addEventListener('click', (e) => {
           e.preventDefault();
-          openModal();
+          scrollWithOffset('#snake-game');
         });
       }
-
-      if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-      }
-
-      if (backdrop) {
-        backdrop.addEventListener('click', closeModal);
-      }
-
-      // Close on Escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
-          closeModal();
-        }
-      });
     })();
 
     // Inline Snake Game
@@ -1401,11 +1024,13 @@
         if (paused) {
           paused = false;
           if (pauseBtn) pauseBtn.textContent = t.inlinePause || '⏸ Szünet';
+          startBtn.textContent = t.inlinePause || '⏸ Szünet';
           gameLoop = setInterval(update, tickMs);
           return;
         }
         running = true;
         paused = false;
+        startBtn.textContent = t.inlinePause || '⏸ Szünet';
         gameLoop = setInterval(update, tickMs);
       }
 
@@ -1415,10 +1040,12 @@
         const t = translations[currentLang] || translations.hu;
         if (paused) {
           clearInterval(gameLoop);
-          if (pauseBtn) pauseBtn.textContent = t.inlineStart || '▶ Start';
+          if (pauseBtn) pauseBtn.textContent = t.inlineResume || '▶ Folytatás';
+          startBtn.textContent = t.inlineResume || '▶ Folytatás';
         } else {
           gameLoop = setInterval(update, tickMs);
           if (pauseBtn) pauseBtn.textContent = t.inlinePause || '⏸ Szünet';
+          startBtn.textContent = t.inlinePause || '⏸ Szünet';
         }
       }
 
@@ -1578,6 +1205,86 @@
       resetBtn.addEventListener('click', reset);
       render();
       setStatus('X' + ((translations[currentLang] || translations.hu).tttTurnSuffix || ' következik'));
+    })();
+
+    // Animated stat counters (count-up on reveal)
+    (function statsCounter(){
+      const nums = document.querySelectorAll('.stat-num[data-target]');
+      if (!nums.length) return;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          const el = e.target;
+          obs.unobserve(el);
+          const target = parseInt(el.dataset.target, 10) || 0;
+          const suffix = el.dataset.suffix || '';
+          const dur = 1400, start = performance.now();
+          function tick(now){
+            const p = Math.min(1, (now - start) / dur);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(target * eased).toLocaleString('hu-HU') + (p < 1 ? '' : suffix);
+            if (p < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
+      }, { threshold: 0.4 });
+      nums.forEach(n => obs.observe(n));
+    })();
+
+    // Latest videos grid (töltsd fel a saját YouTube videó-azonosítóiddal)
+    (function buildVideos(){
+      const grid = document.getElementById('videoGrid');
+      if (!grid) return;
+      const channel = 'https://www.youtube.com/@Botirocky';
+      const videos = [
+        // { id: 'dQw4w9WgXcQ', title: 'Példa videó címe' },
+      ];
+      const t = translations[currentLang] || translations.hu;
+      grid.innerHTML = '';
+      if (!videos.length) {
+        for (let i = 0; i < 3; i++) {
+          const card = document.createElement('a');
+          card.className = 'video-card placeholder';
+          card.href = channel; card.target = '_blank'; card.rel = 'noopener';
+          card.innerHTML = `<div class="video-thumb"><span class="video-play">▶</span></div>` +
+            `<div class="video-info"><div class="video-title" data-i18n="videosSoon">${t.videosSoon}</div></div>`;
+          grid.appendChild(card);
+        }
+        return;
+      }
+      videos.forEach(v => {
+        const card = document.createElement('a');
+        card.className = 'video-card';
+        card.href = `https://www.youtube.com/watch?v=${v.id}`;
+        card.target = '_blank'; card.rel = 'noopener';
+        card.innerHTML =
+          `<div class="video-thumb" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')"><span class="video-play">▶</span></div>` +
+          `<div class="video-info"><div class="video-title">${v.title}</div></div>`;
+        grid.appendChild(card);
+      });
+    })();
+
+    // Newsletter subscribe (front-end, localStorage)
+    (function newsletter(){
+      const form = document.getElementById('newsletterForm');
+      if (!form) return;
+      const input = document.getElementById('newsletterEmail');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const t = translations[currentLang] || translations.hu;
+        const email = (input.value || '').trim();
+        const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!valid) { showToast(t.newsletterInvalid || 'Hibás e‑mail', 'error'); input.focus(); return; }
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem('newsletterSubs') || '[]'); } catch (err) {}
+        if (list.includes(email.toLowerCase())) { showToast(t.newsletterDup || 'Már feliratkoztál.', ''); return; }
+        list.push(email.toLowerCase());
+        try { localStorage.setItem('newsletterSubs', JSON.stringify(list)); } catch (err) {}
+        input.value = '';
+        showToast(t.newsletterSuccess || 'Feliratkoztál! 🎉', 'success');
+        const r = form.getBoundingClientRect();
+        if (typeof confettiBurst === 'function') confettiBurst(r.left + r.width / 2, r.top + r.height / 2);
+      });
     })();
     </script>
 
