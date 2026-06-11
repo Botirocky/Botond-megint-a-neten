@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kriptó Tracker – botondmegintaneten.hu</title>
+    <meta name="description" content="Valós idejű kriptó árfolyamok, RSI indikátor és AI jelzések">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:      #04010d;
+            --bg2:     #0a0618;
+            --card:    #0d0920;
+            --border:  #1a1035;
+            --accent:  #39ff14;
+            --accent2: #00d4ff;
+            --accent3: #7b2fff;
+            --red:     #ff4444;
+            --green:   #39ff14;
+            --yellow:  #ffaa00;
+            --text:    #e0e0e0;
+            --muted:   #666;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* CRT scanline overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 2px,
+                rgba(0,0,0,0.06) 2px,
+                rgba(0,0,0,0.06) 4px
+            );
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* ── Header ──────────────────────────────────────────────── */
+        header {
+            background: linear-gradient(180deg, #0a0618 0%, transparent 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            backdrop-filter: blur(12px);
+            gap: 1rem;
+        }
+
+        .back-btn {
+            color: var(--accent2);
+            text-decoration: none;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            border: 1px solid var(--accent2);
+            padding: 6px 10px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: var(--accent2);
+            color: var(--bg);
+            box-shadow: 0 0 16px var(--accent2);
+        }
+
+        .header-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 11px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: nowrap;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 15px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        #lastUpdate { color: var(--accent); }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 4px 12px;
+            cursor: pointer;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .refresh-btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+            box-shadow: 0 0 12px var(--accent);
+        }
+
+        /* ── Ticker ──────────────────────────────────────────────── */
+        .ticker-wrap {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 5px 0;
+            overflow: hidden;
+        }
+        .ticker-track {
+            display: flex;
+            gap: 2.5rem;
+            animation: ticker 50s linear infinite;
+            white-space: nowrap;
+            width: max-content;
+        }
+        @keyframes ticker {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+        .ticker-item { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 16px; }
+        .pos { color: var(--green); }
+        .neg { color: var(--red);   }
+
+        /* ── Main layout ────────────────────────────────────────── */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: var(--accent2);
+            margin-bottom: 1rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title::before { content: '>'; color: var(--accent); }
+
+        /* ── Search ──────────────────────────────────────────────── */
+        .search-wrap { margin-bottom: 1rem; }
+        #coinSearch {
+            width: 100%;
+            max-width: 380px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 7px 14px;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #coinSearch:focus { border-color: var(--accent2); }
+        #coinSearch::placeholder { color: var(--muted); }
+
+        /* ── Coin cards ─────────────────────────────────────────────── */
+        .coins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .coin-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 0.9rem;
+            cursor: pointer;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            position: relative;
+            overflow: hidden;
+        }
+        .coin-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--accent3);
+        }
+        .coin-card:hover  { border-color: var(--accent2); box-shadow: 0 0 18px rgba(0,212,255,.12); }
+        .coin-card.active { border-color: var(--accent2); box-shadow: 0 0 22px rgba(0,212,255,.18); }
+        .coin-card.active::after { background: var(--accent2); }
+
+        .coin-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.35rem;
+        }
+        .coin-sym { font-family: 'Press Start 2P', monospace; font-size: 8px; color: var(--accent2); }
+        .coin-rank { font-size: 13px; color: var(--muted); }
+        .coin-price { font-size: 20px; color: var(--text); margin: 0.2rem 0; }
+        .coin-change { font-size: 16px; }
+        .coin-signal {
+            margin-top: 0.4rem;
+            font-size: 13px;
+            padding: 1px 6px;
+            display: inline-block;
+            border: 1px solid;
+        }
+        .sig-buy  { color: var(--green);  border-color: var(--green);  }
+        .sig-sell { color: var(--red);    border-color: var(--red);    }
+        .sig-hold { color: var(--yellow); border-color: var(--yellow); }
+
+        /* ── Chart section ────────────────────────────────────────── */
+        .chart-section {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 860px) { .chart-section { grid-template-columns: 1fr; } }
+
+        .chart-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 1rem;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .chart-coin-name {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: var(--accent);
+        }
+        .tf-btns { display: flex; gap: 0.4rem; }
+        .tf-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 3px 10px;
+            cursor: pointer;
+            font-family: 'VT323', monospace;
+            font-size: 15px;
+            transition: all 0.18s;
+        }
+        .tf-btn:hover, .tf-btn.active { border-color: var(--accent2); color: var(--accent2); }
+
+        .chart-canvas-wrap { position: relative; height: 270px; }
+        .rsi-label {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            color: var(--muted);
+            margin: 0.7rem 0 0.3rem;
+        }
+        .rsi-canvas-wrap { position: relative; height: 90px; }
+
+        /* ── Signal panel ────────────────────────────────────────── */
+        .signal-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .signal-box {
+            text-align: center;
+            border: 1px solid var(--border);
+            padding: 1rem 0.5rem;
+        }
+        .signal-lbl {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            color: var(--muted);
+            margin-bottom: 0.6rem;
+        }
+        .signal-val {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+        .signal-val.buy  { color: var(--green);  text-shadow: 0 0 18px var(--green);  }
+        .signal-val.sell { color: var(--red);    text-shadow: 0 0 18px var(--red);    }
+        .signal-val.hold { color: var(--yellow); text-shadow: 0 0 18px var(--yellow); }
+        .signal-reason {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .ind-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 16px;
+        }
+        .ind-row:last-child { border-bottom: none; }
+        .ind-name { color: var(--muted); }
+        .ind-val  { color: var(--accent2); }
+        .ind-val.pos { color: var(--green); }
+        .ind-val.neg { color: var(--red);   }
+
+        /* ── Loading / Error ───────────────────────────────────────── */
+        .loading-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2.5rem;
+            color: var(--muted);
+            font-size: 18px;
+        }
+        .error-box {
+            grid-column: 1 / -1;
+            background: rgba(255,68,68,.1);
+            border: 1px solid var(--red);
+            color: var(--red);
+            padding: 1rem;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        /* ── Footer ──────────────────────────────────────────────── */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--muted);
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+        }
+        footer a { color: var(--accent2); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* ── Refresh progress bar ─────────────────────────────────── */
+        .progress-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--border);
+        }
+        #progressFill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 1s linear;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="back-btn">← VISSZA</a>
+    <span class="header-title">₿ KRIPTÓ TRACKER</span>
+    <div class="header-right">
+        <span>Frissítve: <span id="lastUpdate">–</span></span>
+        <button class="refresh-btn" onclick="manualRefresh()">↺ FRISSÍTÉS</button>
+    </div>
+</header>
+
+<div class="ticker-wrap">
+    <div class="ticker-track" id="tickerTrack">
+        <span style="color:var(--muted)">Betöltés...</span>
+    </div>
+</div>
+
+<main>
+    <div class="search-wrap">
+        <input type="text" id="coinSearch" placeholder="> keresés... (pl. bitcoin, eth)" autocomplete="off">
+    </div>
+
+    <div class="section-title">PIACOK – TOP 20</div>
+    <div id="coinsGrid" class="coins-grid">
+        <div class="loading-msg">Adatok betöltése...</div>
+    </div>
+
+    <div class="chart-section">
+        <!-- Price + RSI chart -->
+        <div class="chart-panel">
+            <div class="chart-header">
+                <span class="chart-coin-name" id="chartCoinName">– Válassz érmét –</span>
+                <div class="tf-btns">
+                    <button class="tf-btn active" data-days="1">1N</button>
+                    <button class="tf-btn" data-days="7">7N</button>
+                    <button class="tf-btn" data-days="30">1HO</button>
+                    <button class="tf-btn" data-days="90">3HO</button>
+                </div>
+            </div>
+            <div class="chart-canvas-wrap">
+                <canvas id="priceChart"></canvas>
+            </div>
+            <div class="rsi-label">RSI (14)</div>
+            <div class="rsi-canvas-wrap">
+                <canvas id="rsiChart"></canvas>
+            </div>
+        </div>
+
+        <!-- AI signal panel -->
+        <div class="signal-panel">
+            <div class="section-title" style="margin-bottom:0">AI ELEMÉS</div>
+
+            <div class="signal-box">
+                <div class="signal-lbl">JELZÉS</div>
+                <div class="signal-val hold" id="signalVal">–</div>
+                <div class="signal-reason" id="signalReason">Válassz ki egy érmét a grafikonhoz</div>
+            </div>
+
+            <div>
+                <div class="ind-row">
+                    <span class="ind-name">RSI (14)</span>
+                    <span class="ind-val" id="indRsi">–</span>
+                </div>
+                <div class="ind-row">
+                    <span class="ind-name">24h változás</span>
+                    <span class="ind-val" id="indChange24h">–</span>
+                </div>
+                <div class="ind-row">
+                    <span class="ind-name">7n változás</span>
+                    <span class="ind-val" id="indChange7d">–</span>
+                </div>
+                <div class="ind-row">
+                    <span class="ind-name">Piac. kap.</span>
+                    <span class="ind-val" id="indMarketCap">–</span>
+                </div>
+                <div class="ind-row">
+                    <span class="ind-name">24h forgalom</span>
+                    <span class="ind-val" id="indVolume">–</span>
+                </div>
+                <div class="ind-row">
+                    <span class="ind-name">ATH</span>
+                    <span class="ind-val" id="indAth">–</span>
+                </div>
+                <div class="ind-row">
+                    <span class="ind-name">ATH-tól</span>
+                    <span class="ind-val" id="indAthPct">–</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>⚠️ Ez az oldal csak tájékoztató jellegű – nem minősül befektetési tanácsadásnak.</p>
+    <p style="margin-top:0.4rem">
+        Adatok: <a href="https://coingecko.com" target="_blank" rel="noopener">CoinGecko</a> &nbsp;|&nbsp;
+        <a href="https://github.com/Botirocky/ai-crypto-tracker" target="_blank" rel="noopener">AI Crypto Tracker (desktop)</a> &nbsp;|&nbsp;
+        <a href="/">← Főoldal</a>
+    </p>
+</footer>
+
+<div class="progress-bar"><div id="progressFill" style="width:100%"></div></div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────────────
+const API_BASE        = 'https://api.coingecko.com/api/v3';
+const COINS_COUNT     = 20;
+const REFRESH_SECONDS = 60;
+
+// ── State ────────────────────────────────────────────────────────────────────────────
+let allCoins       = [];
+let selectedId     = null;
+let currentDays    = 1;
+let priceChart     = null;
+let rsiChart       = null;
+let refreshTimer   = null;
+let refreshTick    = 0;
+
+// ── Formatters ─────────────────────────────────────────────────────────────────────────
+function fmtUSD(n) {
+    if (n == null) return '–';
+    if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+    if (n >= 1e9)  return '$' + (n / 1e9).toFixed(2) + 'B';
+    if (n >= 1e6)  return '$' + (n / 1e6).toFixed(2) + 'M';
+    if (n >= 1000) return '$' + n.toLocaleString('hu-HU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (n >= 1)    return '$' + n.toFixed(2);
+    return '$' + n.toFixed(6);
+}
+
+function fmtPct(n) {
+    if (n == null) return '–';
+    return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+}
+
+// ── RSI ──────────────────────────────────────────────────────────────────────────────
+function calcRSI(prices, period = 14) {
+    if (prices.length < period + 1) return [];
+
+    const result = new Array(period).fill(null);
+    const changes = [];
+    for (let i = 1; i < prices.length; i++) changes.push(prices[i] - prices[i - 1]);
+
+    let avgGain = 0, avgLoss = 0;
+    for (let i = 0; i < period; i++) {
+        if (changes[i] > 0) avgGain += changes[i];
+        else avgLoss += Math.abs(changes[i]);
+    }
+    avgGain /= period;
+    avgLoss /= period;
+
+    const pushRSI = () => {
+        const rs = avgLoss === 0 ? Infinity : avgGain / avgLoss;
+        result.push(isFinite(rs) ? 100 - 100 / (1 + rs) : 100);
+    };
+    pushRSI();
+
+    for (let i = period; i < changes.length; i++) {
+        const g = changes[i] > 0 ? changes[i] : 0;
+        const l = changes[i] < 0 ? Math.abs(changes[i]) : 0;
+        avgGain = (avgGain * (period - 1) + g) / period;
+        avgLoss = (avgLoss * (period - 1) + l) / period;
+        pushRSI();
+    }
+
+    return result;
+}
+
+// ── Signal ──────────────────────────────────────────────────────────────────────────
+function calcSignal(rsi, change24h, change7d) {
+    if (rsi == null) return { cls: 'hold', label: 'TARTÁS', reason: 'Nincs elég adat' };
+
+    let score = 0;
+    const parts = [];
+
+    if      (rsi < 25) { score += 2; parts.push('erősen túladott RSI (' + rsi.toFixed(1) + ')'); }
+    else if (rsi < 35) { score += 1; parts.push('túladott RSI (' + rsi.toFixed(1) + ')'); }
+    else if (rsi > 75) { score -= 2; parts.push('erősen túlvett RSI (' + rsi.toFixed(1) + ')'); }
+    else if (rsi > 65) { score -= 1; parts.push('túlvett RSI (' + rsi.toFixed(1) + ')'); }
+
+    if (change24h != null) {
+        if      (change24h < -8)  { score += 1; parts.push('nagy napi esés'); }
+        else if (change24h >  8)  { score -= 1; parts.push('nagy napi emelkedés'); }
+    }
+    if (change7d != null) {
+        if      (change7d  < -15) { score += 1; parts.push('gyenge heti teljesítmény'); }
+        else if (change7d  >  20) { score -= 1; parts.push('erős heti teljesítmény'); }
+    }
+
+    if (score >=  2) return { cls: 'buy',  label: 'VÉTEL',   reason: parts.join(' | ') || 'Pozitív jelzések' };
+    if (score <= -2) return { cls: 'sell', label: 'ELADÁS',  reason: parts.join(' | ') || 'Negatív jelzések' };
+    return              { cls: 'hold', label: 'TARTÁS',  reason: parts.join(' | ') || 'Semleges feltételek' };
+}
+
+// ── Fetch helpers ───────────────────────────────────────────────────────────────────
+async function fetchMarket() {
+    const r = await fetch(
+        `${API_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc` +
+        `&per_page=${COINS_COUNT}&page=1&sparkline=false&price_change_percentage=7d`
+    );
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+}
+
+async function fetchChart(id, days) {
+    const r = await fetch(`${API_BASE}/coins/${id}/market_chart?vs_currency=usd&days=${days}`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+}
+
+// ── Coin card signal badge ───────────────────────────────────────────────────────────────
+function cardSignal(c24h) {
+    if (c24h == null) return '<span class="coin-signal sig-hold">– TARTÁS</span>';
+    if (c24h < -5)    return '<span class="coin-signal sig-buy">▲ VÉTEL?</span>';
+    if (c24h >  5)    return '<span class="coin-signal sig-sell">▼ ELADÁS?</span>';
+    return                   '<span class="coin-signal sig-hold">– TARTÁS</span>';
+}
+
+// ── Render grid ────────────────────────────────────────────────────────────────────
+function renderGrid(coins) {
+    const grid = document.getElementById('coinsGrid');
+    if (!coins.length) { grid.innerHTML = '<div class="error-box">Nincs megjelenítési adat.</div>'; return; }
+
+    grid.innerHTML = coins.map(c => {
+        const ch24 = c.price_change_percentage_24h;
+        const active = c.id === selectedId ? ' active' : '';
+        return `<div class="coin-card${active}"
+                     data-id="${c.id}" data-name="${c.name.toLowerCase()}"
+                     onclick="selectCoin('${c.id}')">
+            <div class="coin-card-top">
+                <span class="coin-sym">${c.symbol.toUpperCase()}</span>
+                <span class="coin-rank">#${c.market_cap_rank}</span>
+            </div>
+            <div class="coin-price">${fmtUSD(c.current_price)}</div>
+            <div class="coin-change ${ch24 >= 0 ? 'pos' : 'neg'}">${ch24 >= 0 ? '▲' : '▼'} ${fmtPct(ch24)}</div>
+            ${cardSignal(ch24)}
+        </div>`;
+    }).join('');
+}
+
+// ── Update ticker ───────────────────────────────────────────────────────────────────
+function updateTicker(coins) {
+    const items = coins.map(c => {
+        const cls = (c.price_change_percentage_24h ?? 0) >= 0 ? 'pos' : 'neg';
+        return `<span class="ticker-item"><strong>${c.symbol.toUpperCase()}</strong>` +
+               `<span class="${cls}">${fmtUSD(c.current_price)}</span>` +
+               `<span class="${cls}">${fmtPct(c.price_change_percentage_24h)}</span></span>` +
+               `<span style="color:var(--border);margin:0 .2rem">|</span>`;
+    });
+    const html = [...items, ...items].join('');
+    document.getElementById('tickerTrack').innerHTML = html;
+}
+
+// ── Select coin ──────────────────────────────────────────────────────────────────
+async function selectCoin(id) {
+    selectedId = id;
+
+    document.querySelectorAll('.coin-card').forEach(el =>
+        el.classList.toggle('active', el.dataset.id === id)
+    );
+
+    const coin = allCoins.find(c => c.id === id);
+    if (coin) {
+        document.getElementById('chartCoinName').textContent =
+            `${coin.symbol.toUpperCase()} / USD – ${coin.name}`;
+
+        const ch24 = coin.price_change_percentage_24h;
+        const ch7d = coin.price_change_percentage_7d_in_currency;
+
+        setIndRow('indChange24h', fmtPct(ch24), ch24 >= 0 ? 'pos' : 'neg');
+        setIndRow('indChange7d',  fmtPct(ch7d), (ch7d ?? 0) >= 0 ? 'pos' : 'neg');
+        document.getElementById('indMarketCap').textContent = fmtUSD(coin.market_cap);
+        document.getElementById('indVolume').textContent    = fmtUSD(coin.total_volume);
+        document.getElementById('indAth').textContent       = fmtUSD(coin.ath);
+        const athPct = coin.ath_change_percentage;
+        setIndRow('indAthPct', fmtPct(athPct), athPct >= 0 ? 'pos' : 'neg');
+    }
+
+    await drawChart(id, currentDays);
+}
+
+function setIndRow(id, text, cls) {
+    const el = document.getElementById(id);
+    el.textContent  = text;
+    el.className    = 'ind-val' + (cls ? ' ' + cls : '');
+}
+
+// ── Draw charts ──────────────────────────────────────────────────────────────────
+async function drawChart(id, days) {
+    let data;
+    try {
+        data = await fetchChart(id, days);
+    } catch (e) {
+        console.error('Chart fetch error:', e);
+        return;
+    }
+
+    const prices = data.prices.map(p => p[1]);
+    const times  = data.prices.map(p => new Date(p[0]));
+
+    buildPriceChart(times, prices, days);
+
+    const rsiVals = calcRSI(prices, 14);
+    buildRsiChart(times, rsiVals);
+
+    const lastRsi = [...rsiVals].reverse().find(v => v !== null) ?? null;
+    document.getElementById('indRsi').textContent = lastRsi != null ? lastRsi.toFixed(1) : '–';
+
+    const coin = allCoins.find(c => c.id === id);
+    const sig = calcSignal(lastRsi, coin?.price_change_percentage_24h, coin?.price_change_percentage_7d_in_currency);
+
+    const el = document.getElementById('signalVal');
+    el.textContent = sig.label;
+    el.className   = 'signal-val ' + sig.cls;
+    document.getElementById('signalReason').textContent = sig.reason;
+}
+
+// ── Chart.js builders ────────────────────────────────────────────────────────────────
+function buildPriceChart(times, prices, days) {
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    if (priceChart) priceChart.destroy();
+
+    const up    = prices[prices.length - 1] >= prices[0];
+    const color = up ? '#39ff14' : '#ff4444';
+
+    priceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: times,
+            datasets: [{ data: prices, borderColor: color, backgroundColor: color + '18',
+                         borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: { duration: 250 },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: c => fmtUSD(c.raw),
+                        title: c => (c[0].label instanceof Date
+                            ? c[0].label.toLocaleString('hu-HU')
+                            : String(c[0].label))
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: days <= 1 ? 'hour' : days <= 7 ? 'day' : 'week',
+                        displayFormats: { hour: 'HH:mm', day: 'MM.dd', week: 'MM.dd' }
+                    },
+                    grid:  { color: '#1a1035' },
+                    ticks: { color: '#666', font: { family: 'VT323', size: 13 }, maxTicksLimit: 8 }
+                },
+                y: {
+                    grid:  { color: '#1a1035' },
+                    ticks: { color: '#666', font: { family: 'VT323', size: 13 }, callback: v => fmtUSD(v) }
+                }
+            }
+        }
+    });
+}
+
+function buildRsiChart(times, rsiVals) {
+    const ctx = document.getElementById('rsiChart').getContext('2d');
+    if (rsiChart) rsiChart.destroy();
+
+    rsiChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: times,
+            datasets: [{ data: rsiVals, borderColor: '#00d4ff', borderWidth: 1.5,
+                         pointRadius: 0, fill: false, tension: 0.3 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: { duration: 200 },
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { type: 'time', display: false },
+                y: {
+                    min: 0, max: 100,
+                    grid: {
+                        color: ctx => {
+                            const v = ctx.tick?.value;
+                            if (v === 30 || v === 70) return 'rgba(255,68,68,0.4)';
+                            return '#1a1035';
+                        }
+                    },
+                    ticks: {
+                        color: '#666',
+                        font: { family: 'VT323', size: 12 },
+                        callback: v => [0, 30, 50, 70, 100].includes(v) ? v : ''
+                    }
+                }
+            }
+        }
+    });
+}
+
+// ── Market data ──────────────────────────────────────────────────────────────────
+async function loadMarket() {
+    try {
+        allCoins = await fetchMarket();
+        renderGrid(allCoins);
+        updateTicker(allCoins);
+
+        document.getElementById('lastUpdate').textContent =
+            new Date().toLocaleTimeString('hu-HU');
+
+        if (!selectedId && allCoins.length) {
+            selectCoin(allCoins[0].id);
+        } else if (selectedId) {
+            const coin = allCoins.find(c => c.id === selectedId);
+            if (coin) {
+                const ch24 = coin.price_change_percentage_24h;
+                const ch7d = coin.price_change_percentage_7d_in_currency;
+                setIndRow('indChange24h', fmtPct(ch24), ch24 >= 0 ? 'pos' : 'neg');
+                setIndRow('indChange7d',  fmtPct(ch7d), (ch7d ?? 0) >= 0 ? 'pos' : 'neg');
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        document.getElementById('coinsGrid').innerHTML =
+            `<div class="error-box">⚠️ Betöltési hiba: ${err.message}. Kérlek próbáld újra!</div>`;
+    }
+}
+
+// ── Manual refresh ──────────────────────────────────────────────────────────────────
+function manualRefresh() {
+    clearInterval(refreshTimer);
+    refreshTick = 0;
+    document.getElementById('progressFill').style.width = '100%';
+    loadMarket();
+    startRefreshLoop();
+}
+
+function startRefreshLoop() {
+    refreshTimer = setInterval(() => {
+        refreshTick++;
+        const pct = Math.max(0, 100 - (refreshTick / REFRESH_SECONDS) * 100);
+        document.getElementById('progressFill').style.width = pct + '%';
+        if (refreshTick >= REFRESH_SECONDS) {
+            refreshTick = 0;
+            document.getElementById('progressFill').style.width = '100%';
+            loadMarket();
+        }
+    }, 1000);
+}
+
+// ── Search ───────────────────────────────────────────────────────────────────────────
+document.getElementById('coinSearch').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('.coin-card').forEach(el => {
+        el.style.display = (!q || el.dataset.name.includes(q) || el.dataset.id.includes(q)) ? '' : 'none';
+    });
+});
+
+// ── Timeframe buttons ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tf-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentDays = parseInt(this.dataset.days, 10);
+        if (selectedId) drawChart(selectedId, currentDays);
+    });
+});
+
+// ── Bootstrap ────────────────────────────────────────────────────────────────────────────
+// Load the date-fns adapter for Chart.js time axis, then start
+const adapterScript    = document.createElement('script');
+adapterScript.src      = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js';
+adapterScript.onload   = () => { loadMarket(); startRefreshLoop(); };
+adapterScript.onerror  = () => { loadMarket(); startRefreshLoop(); };
+document.head.appendChild(adapterScript);
+</script>
+</body>
+</html>
