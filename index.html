@@ -23,6 +23,7 @@
 </head>
 <body>
     <div id="scrollProgress" role="progressbar" aria-hidden="true"></div>
+    <div class="crt-overlay" aria-hidden="true"></div>
     <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
     <header>
         <div class="header-inner">
@@ -30,6 +31,7 @@
         <h1 class="logo-wave"><span>b</span><span>o</span><span>t</span><span>o</span><span>n</span><span>d</span><span>m</span><span>e</span><span>g</span><span>i</span><span>n</span><span>t</span><span>a</span><span>n</span><span>e</span><span>t</span><span>e</span><span>n</span><span>.</span><span>h</span><span>u</span></h1>
             <div class="controls">
                 <button id="themeToggle" class="icon-btn" aria-label="Téma váltása" title="Világos/Sötét mód">🌙</button>
+                <button id="termToggle" class="icon-btn" aria-label="Terminál megnyitása" title="Terminál (parancsok)">&gt;_</button>
                 <button id="langToggle" class="icon-btn" aria-label="Nyelv váltása" title="Magyar / English">EN</button>
                 <button id="hamburger" class="icon-btn hamburger" aria-label="Menü" title="Menü">☰</button>
             </div>
@@ -229,6 +231,25 @@
         </section>
     </main>
     <button id="toTop" aria-label="Vissza a tetejére" title="Vissza a tetejére">↑</button>
+
+    <!-- Interaktív terminál (parancssoros easter-egg / navigáció) -->
+    <div id="terminal" class="terminal" role="dialog" aria-modal="true" aria-label="Terminál" hidden>
+      <div class="terminal-window" role="document">
+        <div class="terminal-bar">
+          <span class="term-dot red" aria-hidden="true"></span>
+          <span class="term-dot yellow" aria-hidden="true"></span>
+          <span class="term-dot green" aria-hidden="true"></span>
+          <span class="terminal-title">botond@neten: ~</span>
+          <button class="terminal-close" id="terminalClose" type="button" aria-label="Terminál bezárása">✕</button>
+        </div>
+        <div class="terminal-body" id="terminalBody" aria-live="polite"></div>
+        <div class="terminal-input-line">
+          <span class="term-prompt">botond@neten:~$</span>
+          <input id="terminalInput" class="terminal-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Parancs beírása">
+        </div>
+      </div>
+    </div>
+
     <footer>
         <p>&copy; 2026 Buczi Botond. Minden jog fenntartva.</p>
         <div class="footer-links">
@@ -1557,6 +1578,319 @@
         setTimeout(spawn, 3000 + Math.random() * 7000);
       }
       setTimeout(spawn, 1500);
+    })();
+
+    // 12. Generic 3D tilt (glare) a nem-gomb kártyákra / linkekre
+    (function tilt3D() {
+      if (window.matchMedia('(pointer: coarse)').matches) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const SEL = '.stat, .video-card, .ts-link, .about-link-btn, .skill-tag';
+      const GLARE_ON = new Set(['STAT', 'TS-LINK', 'ABOUT-LINK-BTN']); // logikai csak
+      function attach(el) {
+        if (el._tilt) return;
+        el._tilt = true;
+        el.style.transformStyle = 'preserve-3d';
+        el.style.willChange = 'transform';
+        // glare réteg (a nagyobb elemeknél)
+        let glare = null;
+        if (el.matches('.stat, .ts-link, .about-link-btn, .video-card')) {
+          glare = document.createElement('span');
+          glare.className = 'tilt-glare';
+          el.appendChild(glare);
+        }
+        const MAXR = el.matches('.skill-tag') ? 10 : 8;
+        el.addEventListener('mousemove', (e) => {
+          const r = el.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width;
+          const py = (e.clientY - r.top) / r.height;
+          const rotY = (px - 0.5) * MAXR * 2;
+          const rotX = (0.5 - py) * MAXR * 2;
+          el.style.transform =
+            `perspective(650px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(10px)`;
+          if (glare) {
+            glare.style.opacity = '1';
+            glare.style.background =
+              `radial-gradient(circle at ${px*100}% ${py*100}%, rgba(120,210,255,.35), transparent 55%)`;
+          }
+        });
+        el.addEventListener('mouseleave', () => {
+          el.style.transform = '';
+          if (glare) glare.style.opacity = '0';
+        });
+      }
+      document.querySelectorAll(SEL).forEach(attach);
+      new MutationObserver(muts => {
+        muts.forEach(m => m.addedNodes.forEach(n => {
+          if (n.nodeType !== 1) return;
+          if (n.matches?.(SEL)) attach(n);
+          n.querySelectorAll?.(SEL).forEach(attach);
+        }));
+      }).observe(document.body, { childList: true, subtree: true });
+    })();
+
+    // 13. Hero 3D réteges parallax (egérre reagál, mélységgel)
+    (function heroParallax3D() {
+      if (window.matchMedia('(pointer: coarse)').matches) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const home = document.getElementById('home');
+      const title = document.querySelector('.ts-title');
+      const subtitle = document.querySelector('.ts-subtitle');
+      const links = document.querySelector('.ts-links');
+      if (!home || !title) return;
+      const layers = [
+        { el: title,    depth: 26 },
+        { el: subtitle, depth: 16 },
+        { el: links,    depth: 9  },
+      ].filter(l => l.el);
+      let raf = null, mx = 0, my = 0;
+      home.addEventListener('mousemove', (e) => {
+        const r = home.getBoundingClientRect();
+        mx = (e.clientX - r.left) / r.width - 0.5;
+        my = (e.clientY - r.top) / r.height - 0.5;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+      home.addEventListener('mouseleave', () => {
+        mx = 0; my = 0;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+      function apply() {
+        raf = null;
+        layers.forEach(({ el, depth }) => {
+          el.style.transform =
+            `translate3d(${(-mx*depth).toFixed(1)}px, ${(-my*depth).toFixed(1)}px, 0) ` +
+            `rotateX(${(my*4).toFixed(2)}deg) rotateY(${(-mx*5).toFixed(2)}deg)`;
+        });
+      }
+    })();
+
+    // 14. Matrix rain overlay (parancsból / Konami-ra indul)
+    const MatrixRain = (function () {
+      let canvas, ctx, raf, cols, drops, running = false, fontSize = 16;
+      const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄABCDEF0123456789<>*#@$%&';
+      function build() {
+        canvas = document.createElement('canvas');
+        canvas.className = 'matrix-canvas';
+        canvas.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(canvas);
+        ctx = canvas.getContext('2d');
+        resize();
+        window.addEventListener('resize', resize, { passive: true });
+      }
+      function resize() {
+        if (!canvas) return;
+        canvas.width = innerWidth; canvas.height = innerHeight;
+        cols = Math.floor(canvas.width / fontSize);
+        drops = new Array(cols).fill(0).map(() => Math.random() * -50);
+      }
+      function frame() {
+        ctx.fillStyle = 'rgba(4,1,13,.10)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + 'px monospace';
+        for (let i = 0; i < cols; i++) {
+          const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+          const x = i * fontSize, y = drops[i] * fontSize;
+          ctx.fillStyle = Math.random() > 0.975 ? '#eaffff' : '#00e0ff';
+          ctx.shadowColor = '#00aaff'; ctx.shadowBlur = 8;
+          ctx.fillText(ch, x, y);
+          ctx.shadowBlur = 0;
+          if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        }
+        raf = requestAnimationFrame(frame);
+      }
+      return {
+        toggle(ms) {
+          if (running) { this.stop(); return false; }
+          if (!canvas) build();
+          canvas.classList.add('on');
+          running = true; frame();
+          if (ms) setTimeout(() => this.stop(), ms);
+          return true;
+        },
+        stop() {
+          if (!running) return;
+          running = false;
+          if (raf) cancelAnimationFrame(raf);
+          if (canvas) canvas.classList.remove('on');
+        },
+        get running() { return running; }
+      };
+    })();
+
+    // 15. Interaktív terminál
+    (function terminal() {
+      const modal = document.getElementById('terminal');
+      const body = document.getElementById('terminalBody');
+      const input = document.getElementById('terminalInput');
+      const openBtn = document.getElementById('termToggle');
+      const closeBtn = document.getElementById('terminalClose');
+      if (!modal || !body || !input || !openBtn) return;
+
+      const history = [];
+      let histIdx = -1;
+      let lastFocus = null;
+
+      function print(text, cls) {
+        const line = document.createElement('div');
+        line.className = 'term-line' + (cls ? ' ' + cls : '');
+        line.innerHTML = text;
+        body.appendChild(line);
+        body.scrollTop = body.scrollHeight;
+      }
+      function printPrompt(cmd) {
+        print(`<span class="term-prompt">botond@neten:~$</span> <span class="term-cmd">${escapeHtml(cmd)}</span>`);
+      }
+      function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+      }
+
+      const banner = [
+        '<span class="term-accent">botondmegintaneten.hu</span> — interaktív terminál',
+        "Írd be: <span class='term-accent'>help</span> a parancsok listájához."
+      ];
+
+      const commands = {
+        help() {
+          return [
+            "Elérhető parancsok:",
+            "  <span class='term-accent'>help</span>      – ez a lista",
+            "  <span class='term-accent'>whoami</span>    – rólam röviden",
+            "  <span class='term-accent'>projects</span>  – GitHub projektek",
+            "  <span class='term-accent'>skills</span>    – amiket ismerek",
+            "  <span class='term-accent'>social</span>    – elérhetőségeim",
+            "  <span class='term-accent'>theme</span>     – világos/sötét váltás",
+            "  <span class='term-accent'>lang</span>      – magyar/angol váltás",
+            "  <span class='term-accent'>snake</span>     – ugrás a Snake játékhoz",
+            "  <span class='term-accent'>matrix</span>    – Matrix eső be/ki",
+            "  <span class='term-accent'>date</span>      – dátum és idő",
+            "  <span class='term-accent'>echo</span> &lt;szöveg&gt; – visszaírás",
+            "  <span class='term-accent'>clear</span>     – képernyő törlése",
+            "  <span class='term-accent'>exit</span>      – terminál bezárása",
+          ];
+        },
+        whoami() {
+          return [
+            "Botond vagyok – etikus hekk, kódolás és tech iránt érdeklődő.",
+            "Python, web, ESP/IoT, Flipper Zero, Linux és AI/API a fő területeim.",
+          ];
+        },
+        projects() {
+          window.open('https://github.com/Botirocky', '_blank', 'noopener');
+          return ["Megnyitom a GitHub profilom új lapon → <span class='term-accent'>github.com/Botirocky</span>"];
+        },
+        skills() {
+          return ["Python · JavaScript · HTML/CSS · C · Linux · Git · ESP/IoT · Flipper Zero · Etikus hekk · AI &amp; API"];
+        },
+        social() {
+          return [
+            "GitHub:   <span class='term-accent'>github.com/Botirocky</span>",
+            "Linktree: <span class='term-accent'>linktr.ee/Botirocky</span>",
+            "YouTube:  <span class='term-accent'>youtube.com/@Botirocky</span>",
+            "E-mail:   <span class='term-accent'>buczibotond@gmail.com</span>",
+          ];
+        },
+        theme() {
+          document.getElementById('themeToggle')?.click();
+          const dark = document.documentElement.classList.contains('dark');
+          return ["Téma: <span class='term-accent'>" + (dark ? 'sötét 🌙' : 'világos ☀️') + "</span>"];
+        },
+        lang() {
+          document.getElementById('langToggle')?.click();
+          const en = document.documentElement.getAttribute('lang') === 'en';
+          return ["Nyelv: <span class='term-accent'>" + (en ? 'English 🇬🇧' : 'Magyar 🇭🇺') + "</span>"];
+        },
+        snake() {
+          close();
+          setTimeout(() => scrollWithOffset('#snake-game'), 250);
+          return ["Görgetek a Snake játékhoz… 🐍"];
+        },
+        matrix() {
+          const on = MatrixRain.toggle();
+          return ["Matrix eső: <span class='term-accent'>" + (on ? 'BE' : 'KI') + "</span>"];
+        },
+        date() { return [new Date().toLocaleString('hu-HU')]; },
+        echo(args) { return [args.length ? escapeHtml(args.join(' ')) : '']; },
+        sudo() { return ["Szép próbálkozás 😏 – itt nincs root."]; },
+        clear() { body.innerHTML = ''; return null; },
+        exit() { close(); return null; },
+      };
+      const aliases = { about: 'whoami', ls: 'projects', contact: 'social', cls: 'clear', quit: 'exit' };
+
+      function run(raw) {
+        const line = raw.trim();
+        if (!line) return;
+        printPrompt(line);
+        history.push(line); histIdx = history.length;
+        const [name, ...args] = line.split(/\s+/);
+        const key = aliases[name.toLowerCase()] || name.toLowerCase();
+        const fn = commands[key];
+        if (!fn) {
+          print("Ismeretlen parancs: <span class='term-err'>" + escapeHtml(name) +
+            "</span>. Írd be: <span class='term-accent'>help</span>", 'term-err');
+          return;
+        }
+        const out = fn(args);
+        if (out) out.forEach(l => print(l));
+      }
+
+      function open() {
+        lastFocus = document.activeElement;
+        modal.hidden = false;
+        requestAnimationFrame(() => modal.classList.add('show'));
+        if (!body.dataset.init) {
+          banner.forEach(l => print(l, 'term-accent-line'));
+          body.dataset.init = '1';
+        }
+        setTimeout(() => input.focus(), 60);
+      }
+      function close() {
+        modal.classList.remove('show');
+        setTimeout(() => { modal.hidden = true; }, 260);
+        lastFocus?.focus?.();
+      }
+
+      openBtn.addEventListener('click', open);
+      closeBtn?.addEventListener('click', close);
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { run(input.value); input.value = ''; }
+        else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (histIdx > 0) { histIdx--; input.value = history[histIdx] || ''; }
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx] || ''; }
+          else { histIdx = history.length; input.value = ''; }
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.hidden) close();
+        // Backtick nyitja a terminált (ha nem beviteli mezőben vagyunk)
+        if (e.key === '`' && modal.hidden) {
+          const tag = document.activeElement?.tagName;
+          if (tag !== 'INPUT' && tag !== 'TEXTAREA') { e.preventDefault(); open(); }
+        }
+      });
+    })();
+
+    // 16. Konami-kód easter egg → Matrix eső + konfetti + toast
+    (function konami() {
+      const seq = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+      let pos = 0;
+      document.addEventListener('keydown', (e) => {
+        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        if (key === seq[pos]) {
+          pos++;
+          if (pos === seq.length) {
+            pos = 0;
+            MatrixRain.toggle(6000);
+            if (typeof confettiBurst === 'function') confettiBurst(innerWidth/2, innerHeight/3);
+            showToast('🎮 Konami aktiválva – hacker mód!', 'success', 3000);
+          }
+        } else {
+          pos = (key === seq[0]) ? 1 : 0;
+        }
+      });
     })();
 
     // 11. Skill tag stagger entrance

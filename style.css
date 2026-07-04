@@ -384,18 +384,20 @@ section.revealed {
   display: none;
 }
 
-/* Asztali nézet: a menü egy sorban, logó balra, menü + vezérlők jobbra */
-@media (min-width: 721px) {
-  .header-inner { justify-content: flex-start; gap: 16px; }
+/* Asztali nézet: a menü egy sorban, logó balra, menü + vezérlők jobbra.
+   1160px felett fér el mind a 9 menüpont + 3 vezérlőgomb túllógás nélkül;
+   ez alatt a rendezett hamburger-menü lép életbe. */
+@media (min-width: 1160px) {
+  .header-inner { justify-content: flex-start; gap: 14px; max-width: 1240px; }
   .header-inner > h1 { margin-right: auto; }
   nav { order: 1; }
   .controls { order: 2; }
-  nav ul { flex-wrap: nowrap; }
+  nav ul { flex-wrap: nowrap; gap: 8px; }
   nav a { white-space: nowrap; }
 }
 
-/* Mobile nav */
-@media (max-width: 720px) {
+/* Mobile / tablet / keskeny desktop nav (hamburger) */
+@media (max-width: 1159px) {
   nav ul {
     position: fixed;
     top: calc(var(--header-h) + env(safe-area-inset-top));
@@ -1183,3 +1185,388 @@ footer p, footer a { font-family: 'VT323', monospace; font-size: 18px; color: #5
   .ts-title { animation: none; }
 }
 @media (max-width: 600px) { .logo-wave { font-size: clamp(14px, 4.4vw, 22px); } }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ✦ NEON POLISH PASS — kohézió a synthwave témához
+   Üveges felületek, finom neon-glow, gördülékenyebb reveal, CRT scanline.
+   A felület-hátterek :root.dark alá vannak zárva (ez az alapértelmezett téma),
+   hogy a világos mód olvashatósága ne romoljon.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --neon:    #00aaff;   /* elektromos kék   */
+  --neon-2:  #a855f7;   /* neon lila        */
+  --neon-3:  #ff3ca0;   /* neon pink        */
+  --neon-cy: #22e0ff;   /* cián             */
+}
+
+/* ── Gördülékenyebb, görgetésre induló szekció-belépés ───────────────────── */
+section {
+  animation: none;                     /* a régi betöltéskori fadeUp kikapcsolva */
+  transition:
+    opacity .7s cubic-bezier(.22,.61,.36,1),
+    transform .7s cubic-bezier(.22,.61,.36,1),
+    filter .6s ease,
+    background-color .25s ease,
+    border-color .25s ease,
+    box-shadow .3s ease;
+}
+section:not(.revealed) {
+  opacity: 0;
+  transform: translateY(34px) scale(.985);
+  filter: blur(3px);
+}
+section.revealed {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* ── Üveges neon szekció-felület (sötét téma) ────────────────────────────── */
+:root.dark section:not(#home) {
+  background:
+    linear-gradient(165deg, rgba(14,20,52,.72), rgba(8,9,28,.60));
+  border: 1px solid rgba(0,170,255,.20);
+  box-shadow:
+    inset 0 1px 0 rgba(130,195,255,.09),
+    0 20px 46px rgba(2,4,20,.55);
+  -webkit-backdrop-filter: blur(9px) saturate(1.18);
+  backdrop-filter: blur(9px) saturate(1.18);
+  position: relative;
+}
+/* Finom színátmenetes neon-keret (maszkolt, csak a szegélyt festi) */
+:root.dark section:not(#home)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(125deg,
+    rgba(0,170,255,.55), rgba(168,85,247,.38) 42%, rgba(255,60,160,.15) 68%, transparent 82%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  pointer-events: none;
+  opacity: .55;
+}
+
+/* A játékszekciók maradjanak jól olvashatók (nem áttetsző háttér) */
+:root.dark section#snake-game,
+:root.dark section#tic-tac-toe {
+  background: linear-gradient(165deg, rgba(10,12,34,.94), rgba(6,7,22,.94));
+}
+
+/* ── Neonos szekció-cím aláhúzás ─────────────────────────────────────────── */
+section > h2::after {
+  width: 64px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--neon), var(--neon-2), var(--neon-3), var(--neon));
+  background-size: 220% 100%;
+  box-shadow: 0 0 14px rgba(0,153,255,.7);
+  border-radius: 2px;
+  animation: underlineFlow 5s linear infinite;
+}
+@keyframes underlineFlow { to { background-position: 220% 0; } }
+
+/* ── Üveges neon kártyák ─────────────────────────────────────────────────── */
+:root.dark .card {
+  background: linear-gradient(160deg, rgba(16,22,56,.66), rgba(10,11,30,.50));
+  border: 1px solid rgba(0,170,255,.20);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+:root.dark .card:hover {
+  background: linear-gradient(160deg, rgba(22,30,78,.82), rgba(12,14,38,.64));
+  border-color: rgba(0,200,255,.62);
+  box-shadow: 0 16px 36px rgba(2,6,26,.5), 0 0 24px rgba(0,153,255,.30);
+}
+:root.dark .badge {
+  background: rgba(0,153,255,.14);
+  border-color: rgba(0,170,255,.35);
+  color: #9fe0ff;
+  text-shadow: 0 0 6px rgba(0,153,255,.5);
+}
+
+/* ── Stat-dobozok, videó-kártyák, kontakt, hírlevél: üveges neon ─────────── */
+:root.dark .stat,
+:root.dark .video-card,
+:root.dark .contact-card,
+:root.dark .about-link-btn,
+:root.dark .newsletter-form input {
+  background: linear-gradient(160deg, rgba(16,22,56,.60), rgba(10,11,30,.46));
+  border-color: rgba(0,170,255,.22);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+:root.dark .stat:hover,
+:root.dark .video-card:hover {
+  border-color: rgba(0,200,255,.6);
+  box-shadow: 0 14px 32px rgba(2,6,26,.5), 0 0 24px rgba(0,153,255,.28);
+}
+:root.dark .newsletter-form input:focus {
+  border-color: var(--neon);
+  box-shadow: 0 0 0 4px rgba(0,153,255,.20), 0 0 18px rgba(0,153,255,.35);
+}
+:root.dark .about-link-btn:hover {
+  background: linear-gradient(135deg, rgba(0,140,255,.9), rgba(120,50,220,.9));
+  border-color: var(--neon);
+  box-shadow: 0 8px 22px rgba(0,90,200,.4), 0 0 20px rgba(0,153,255,.4);
+}
+
+/* ── Neon gombok (sötét téma) ────────────────────────────────────────────── */
+:root.dark .button {
+  border: 1px solid rgba(0,170,255,.42);
+  background: linear-gradient(135deg, rgba(0,110,220,.16), rgba(120,45,210,.14));
+  text-shadow: 0 0 6px rgba(0,153,255,.4);
+}
+:root.dark .button:hover {
+  border-color: var(--neon-cy);
+  background: linear-gradient(135deg, rgba(0,140,255,.32), rgba(140,60,230,.26));
+  box-shadow: 0 0 18px rgba(0,153,255,.5), inset 0 0 14px rgba(0,153,255,.16);
+}
+:root.dark .icon-btn {
+  border-color: rgba(0,170,255,.32);
+}
+:root.dark .icon-btn:hover {
+  background: rgba(0,153,255,.16);
+  border-color: var(--neon);
+  box-shadow: 0 0 14px rgba(0,153,255,.4);
+}
+
+/* ── Neonos aktív navigáció ──────────────────────────────────────────────── */
+:root.dark nav a::after { box-shadow: 0 0 8px var(--neon); }
+:root.dark nav a:hover { text-shadow: 0 0 8px rgba(0,153,255,.7); }
+:root.dark nav a.active {
+  background: linear-gradient(135deg, rgba(0,120,230,.55), rgba(120,40,200,.4));
+  box-shadow: 0 0 16px rgba(0,153,255,.45);
+}
+
+/* ── Amőba tábla neon ────────────────────────────────────────────────────── */
+:root.dark .ttt-board {
+  background: rgba(8,10,30,.7);
+  border-color: rgba(0,170,255,.3);
+}
+:root.dark .ttt-cell {
+  background: rgba(12,16,42,.75);
+  border-color: rgba(0,170,255,.22);
+}
+:root.dark .ttt-cell.x { text-shadow: 0 0 12px rgba(0,153,255,.9); }
+:root.dark .ttt-cell.o { text-shadow: 0 0 12px rgba(255,60,120,.9); }
+:root.dark .ttt-cell.win {
+  background: rgba(0,153,255,.22);
+  box-shadow: inset 0 0 18px rgba(0,153,255,.45);
+}
+
+/* ── Vissza-a-tetejére és toast neonja ───────────────────────────────────── */
+:root.dark #toTop {
+  background: linear-gradient(135deg, rgba(0,120,230,.6), rgba(120,40,200,.5));
+  border-color: rgba(0,170,255,.5);
+  color: #eaf4ff;
+  box-shadow: 0 6px 20px rgba(0,60,160,.4), 0 0 16px rgba(0,153,255,.4);
+}
+:root.dark #toTop:hover { box-shadow: 0 8px 26px rgba(0,80,200,.5), 0 0 24px rgba(0,153,255,.6); }
+:root.dark .toast {
+  background: rgba(10,12,34,.9);
+  border-color: rgba(0,170,255,.3);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* ── Neon görgetősáv ─────────────────────────────────────────────────────── */
+:root.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--neon), var(--neon-2));
+  border-radius: 3px;
+}
+:root.dark ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--neon-cy), var(--neon-3));
+}
+
+/* ── CRT scanline + vignette overlay (csak sötét témában) ────────────────── */
+.crt-overlay { display: none; }
+:root.dark .crt-overlay {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 60;                 /* tartalom fölött, de fejléc/modál/toast alatt */
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.11) 0px, rgba(0,0,0,.11) 1px,
+    transparent 2px, transparent 3px
+  );
+  mix-blend-mode: multiply;
+  opacity: .35;
+  animation: crtFlicker 5s steps(60) infinite;
+}
+:root.dark .crt-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(125% 125% at 50% 48%, transparent 60%, rgba(0,0,0,.45));
+}
+@keyframes crtFlicker {
+  0%, 96%, 100% { opacity: .33; }
+  97%           { opacity: .24; }
+  98%           { opacity: .40; }
+  99%           { opacity: .28; }
+}
+
+/* ── 3D tilt glare réteg ─────────────────────────────────────────────────── */
+.stat, .video-card, .ts-link, .about-link-btn {
+  position: relative;
+  overflow: hidden;
+}
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .25s ease;
+  mix-blend-mode: screen;
+  z-index: 2;
+}
+
+/* ── Matrix eső overlay ──────────────────────────────────────────────────── */
+.matrix-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 900;
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+.matrix-canvas.on { opacity: .9; }
+
+/* ── Interaktív terminál ─────────────────────────────────────────────────── */
+.terminal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(2,3,14,.62);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .26s ease;
+}
+.terminal.show { opacity: 1; }
+.terminal[hidden] { display: none; }
+
+.terminal-window {
+  width: min(720px, 100%);
+  max-height: min(72vh, 560px);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(165deg, rgba(6,10,26,.96), rgba(3,4,16,.97));
+  border: 1px solid rgba(0,170,255,.45);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(0,153,255,.12),
+    0 24px 70px rgba(0,0,0,.6),
+    0 0 40px rgba(0,153,255,.25);
+  overflow: hidden;
+  transform: translateY(16px) scale(.98);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.terminal.show .terminal-window { transform: none; }
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(0,20,45,.6);
+  border-bottom: 1px solid rgba(0,170,255,.28);
+}
+.term-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.term-dot.red { background: #ff5f56; }
+.term-dot.yellow { background: #ffbd2e; }
+.term-dot.green { background: #27c93f; }
+.terminal-title {
+  margin-left: 8px;
+  font-family: 'VT323', monospace;
+  font-size: 17px;
+  color: #7fd4ff;
+  letter-spacing: .5px;
+}
+.terminal-close {
+  margin-left: auto;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,170,255,.35);
+  background: transparent;
+  color: #9fe0ff;
+  cursor: pointer;
+  transition: background .15s ease, box-shadow .15s ease;
+}
+.terminal-close:hover { background: rgba(0,153,255,.18); box-shadow: 0 0 12px rgba(0,153,255,.5); }
+
+.terminal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #b6f0d0;
+  text-shadow: 0 0 6px rgba(0,200,150,.35);
+}
+.term-line { white-space: pre-wrap; word-break: break-word; }
+.term-accent { color: #22e0ff; text-shadow: 0 0 8px rgba(0,190,255,.6); }
+.term-accent-line { color: #7fd4ff; }
+.term-cmd { color: #eaffff; }
+.term-err { color: #ff7a90; text-shadow: 0 0 8px rgba(255,60,100,.5); }
+
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid rgba(0,170,255,.28);
+  background: rgba(0,15,35,.5);
+}
+.term-prompt {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: #22e0ff;
+  text-shadow: 0 0 8px rgba(0,190,255,.6);
+  white-space: nowrap;
+}
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #eaffff;
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  caret-color: #22e0ff;
+}
+.terminal-body::-webkit-scrollbar { width: 8px; }
+.terminal-body::-webkit-scrollbar-thumb { background: rgba(0,170,255,.4); border-radius: 4px; }
+
+@media (max-width: 600px) {
+  .terminal { padding: 10px; align-items: flex-end; }
+  .terminal-window { max-height: 80vh; }
+  .terminal-body, .terminal-input, .term-prompt { font-size: 16px; }
+}
+
+/* ── Reduced-motion: minden statikus és olvasható marad ──────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  section, section:not(.revealed) {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  section > h2::after { animation: none; }
+  .crt-overlay { animation: none !important; }
+  .matrix-canvas { display: none !important; }
+}
