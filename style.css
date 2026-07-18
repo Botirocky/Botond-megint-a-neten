@@ -657,35 +657,82 @@ footer {
   to   { opacity: 0; transform: translateX(20px); }
 }
 
-/* Skills section */
+/* Skills section — retro terminál chipek, skillenként saját neon-akcenttel */
 .skills-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 12px;
 }
 .skill-tag {
+  --sk: 138, 180, 248;            /* akcentszín (RGB) — a nth-child felülírja */
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  background: rgba(31,111,235,.08);
-  border: 1px solid var(--border);
-  font-size: 14px;
-  font-weight: 500;
+  gap: 8px;
+  padding: 8px 16px 8px 13px;
+  border-radius: 10px;
+  font-family: 'VT323', ui-monospace, "Cascadia Code", monospace;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: .5px;
   color: var(--text);
+  background: linear-gradient(rgba(var(--sk), .12), rgba(var(--sk), .04));
+  border: 1px solid rgba(var(--sk), .38);
+  box-shadow: inset 0 0 12px rgba(var(--sk), .06);
   cursor: default;
-  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-  animation: fadeUp .4s ease both;
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .25s ease,
+              background .25s ease, border-color .25s ease;
+}
+/* terminál-prompt jel a chip elején */
+.skill-tag::before {
+  content: '>';
+  color: rgb(var(--sk));
+  font-weight: 700;
+  opacity: .85;
+  text-shadow: 0 0 8px rgba(var(--sk), .7);
+}
+/* fénysöprés (scanline) hoverre */
+.skill-tag::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, rgba(var(--sk), .22) 50%, transparent 60%);
+  transform: translateX(-120%);
+  transition: transform .55s ease;
+  pointer-events: none;
 }
 .skill-tag:hover {
-  transform: translateY(-3px) scale(1.05);
-  background: rgba(31,111,235,.15);
-  box-shadow: 0 6px 16px rgba(31,111,235,.15);
-  border-color: var(--primary);
+  transform: translateY(-4px);
+  border-color: rgb(var(--sk));
+  background: linear-gradient(rgba(var(--sk), .22), rgba(var(--sk), .08));
+  box-shadow: 0 8px 22px rgba(var(--sk), .28),
+              0 0 14px rgba(var(--sk), .35),
+              inset 0 0 16px rgba(var(--sk), .12);
 }
-.skill-tag .skill-icon { font-size: 16px; }
+.skill-tag:hover::after { transform: translateX(120%); }
+.skill-tag:hover .skill-icon { animation: skillWiggle .5s ease; }
+.skill-tag .skill-icon {
+  font-size: 18px;
+  filter: drop-shadow(0 0 4px rgba(var(--sk), .55));
+}
+/* skillenkénti retro paletta (a JS-beli sorrend szerint) */
+.skill-tag:nth-child(1)  { --sk: 87, 224, 143; }   /* Python — zöld */
+.skill-tag:nth-child(2)  { --sk: 247, 223, 30; }   /* JavaScript — sárga */
+.skill-tag:nth-child(3)  { --sk: 255, 138, 101; }  /* HTML & CSS — narancs */
+.skill-tag:nth-child(4)  { --sk: 130, 170, 255; }  /* C — kék */
+.skill-tag:nth-child(5)  { --sk: 255, 209, 102; }  /* Linux — borostyán */
+.skill-tag:nth-child(6)  { --sk: 199, 146, 234; }  /* Git & GitHub — lila */
+.skill-tag:nth-child(7)  { --sk: 79, 214, 255; }   /* ESP / IoT — cián */
+.skill-tag:nth-child(8)  { --sk: 255, 121, 198; }  /* Flipper Zero — rózsaszín */
+.skill-tag:nth-child(9)  { --sk: 80, 250, 123; }   /* Etikus hekk — neonzöld */
+.skill-tag:nth-child(10) { --sk: 139, 233, 253; }  /* AI & API — világoskék */
+@keyframes skillWiggle {
+  0%, 100% { transform: rotate(0) scale(1); }
+  30%      { transform: rotate(-12deg) scale(1.18); }
+  60%      { transform: rotate(10deg)  scale(1.1); }
+}
 
 /* Footer improvements */
 .footer-links {
